@@ -32,6 +32,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	private static final long serialVersionUID = 3311948968448865730L;
 	
 //	Info de l'Assentament
+	
 	private String organOrigen;
 	private String varOrganOrigen;
 	private String oficinaCodi;
@@ -111,7 +112,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
+		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreRegWeb3Actiu())
 			throw new JbpmException("El plugin de registre no està configurat");
 		RegistreAnotacio anotacio = new RegistreAnotacio();
 		
@@ -146,8 +147,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				assumpteCodi,
 				varAssumpteCodi));
 		
-//		anotacio.setUsuariCodi(Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual());
-		anotacio.setUsuariCodi("e43110511r");
+		anotacio.setUsuariCodi(Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual());
 		
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		anotacio.setExpedientNumero(expedient.getIdentificador());
@@ -190,6 +190,22 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				interessatProvincia,
 				varInteressatProvincia));
+		interessat.setTelefon((String)getValorOVariable(
+				executionContext,
+				interessatTelefon,
+				varInteressatTelefon));
+		interessat.setMunicipi((String)getValorOVariable(
+				executionContext,
+				interessatMunicipi,
+				varInteressatMunicipi));
+		interessat.setCodiPostal((String)getValorOVariable(
+				executionContext,
+				interessatCodiPostal,
+				varInteressatCodiPostal));
+		interessat.setAdresa((String)getValorOVariable(
+				executionContext,
+				interessatAdresa,
+				varInteressatAdresa));
 		
 //		Info del representant
 		RegistreInteressat representant = new RegistreInteressat();
@@ -229,6 +245,22 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				representantProvincia,
 				varRepresentantProvincia));
+		representant.setTelefon((String)getValorOVariable(
+				executionContext,
+				representantTelefon,
+				varRepresentantTelefon));
+		representant.setMunicipi((String)getValorOVariable(
+				executionContext,
+				representantMunicipi,
+				varRepresentantMunicipi));
+		representant.setCodiPostal((String)getValorOVariable(
+				executionContext,
+				representantCodiPostal,
+				varRepresentantCodiPostal));
+		representant.setAdresa((String)getValorOVariable(
+				executionContext,
+				representantAdresa,
+				varRepresentantAdresa));
 		
 		if (representant.getTipus() != null && !representant.getTipus().isEmpty() && !("".equalsIgnoreCase(representant.getTipus())))
 			interessat.setRepresentant(representant);
@@ -262,10 +294,11 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				resposta.getNumero(),
 				resposta.getData(),
 				anotacio.getOficinaCodi(),
-				null,
-//				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
-//						anotacio.getOficinaCodi(),
-//						expedient.getId()),
+				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
+						resposta.getNumero(),
+						anotacio.getUsuariCodi(),
+						Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.registre.codi.entitat"),
+						expedient.getId()),
 				false);
 		
 	}
@@ -646,4 +679,5 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 	public void setVarDocument(String varDocument) {
 		this.varDocument = varDocument;
 	}
+
 }

@@ -19,7 +19,13 @@ public interface RegistrePluginRegWeb3 {
 	 * @throws RegistrePluginException
 	 */
 	public RespostaAnotacioRegistre registrarSortida(
-			RegistreAssentament registreSortida) throws RegistrePluginException;
+			RegistreAssentament registreSortida,
+			String aplicacioNom,
+			String aplicacioVersio) throws RegistrePluginException;
 
+	public RespostaConsultaRegistre obtenirRegistrSortida(
+			String numRegistre, 
+			String usuariCodi,
+			String entitatCodi) throws RegistrePluginException;
 
 }

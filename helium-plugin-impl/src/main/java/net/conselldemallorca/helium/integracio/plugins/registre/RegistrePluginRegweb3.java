@@ -1,36 +1,25 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.activation.MimetypesFileTypeMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.BeforeClass;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import es.caib.regweb.ws.model.ListaResultados;
-import es.caib.regweb.ws.model.ParametrosRegistroSalidaWS;
-import es.caib.regweb.ws.services.regwebfacade.RegwebFacadeServiceLocator;
-import es.caib.regweb.ws.services.regwebfacade.RegwebFacade_PortType;
 import es.caib.regweb3.ws.api.v3.AnexoWs;
 import es.caib.regweb3.ws.api.v3.DatosInteresadoWs;
 import es.caib.regweb3.ws.api.v3.IdentificadorWs;
 import es.caib.regweb3.ws.api.v3.InteresadoWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroSalidaWs;
+import es.caib.regweb3.ws.api.v3.RegistroSalidaResponseWs;
 import es.caib.regweb3.ws.api.v3.RegistroSalidaWs;
 import es.caib.regweb3.ws.api.v3.WsI18NException;
 import es.caib.regweb3.ws.api.v3.WsValidationException;
 import es.caib.regweb3.ws.api.v3.utils.WsClientUtils;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressatTipusEnum;
 
 
@@ -46,16 +35,15 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 	protected static RegWebRegistroEntradaWs registroEntradaApi;
 	protected static RegWebRegistroSalidaWs registroSalidaApi;
 
-	private static final String SEPARADOR_ENTITAT = "-";
-	private static final String SEPARADOR_NUMERO = "/";
-
 	@BeforeClass
     public static void setUpBeforeClass() throws Exception {
         registroSalidaApi = getRegistroSalidaApi();
     }
 
 	public RespostaAnotacioRegistre registrarSortida(
-			RegistreAssentament registreSortida) throws RegistrePluginException {
+			RegistreAssentament registreSortida,
+			String aplicacioNom,
+			String aplicacioVersio) throws RegistrePluginException {
 		RegistroSalidaWs registroSalidaWs = new RegistroSalidaWs();
 
         registroSalidaWs.setOrigen(registreSortida.getOrgan());
@@ -67,8 +55,8 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
         registroSalidaWs.setIdioma(registreSortida.getIdiomaCodi());
         registroSalidaWs.setTipoAsunto(registreSortida.getAssumpteTipusCodi());
 
-        registroSalidaWs.setAplicacion("Helium");
-        registroSalidaWs.setVersion("3.2");
+        registroSalidaWs.setAplicacion(aplicacioNom);
+        registroSalidaWs.setVersion(aplicacioVersio);
 
         registroSalidaWs.setCodigoUsuario(registreSortida.getUsuariCodi());
         registroSalidaWs.setContactoUsuario(registreSortida.getUsuariContacte());
@@ -98,6 +86,10 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
             interesado.setApellido2(inter.getLlinatge2());
             interesado.setPais(inter.getPais() != null ? new Long(inter.getPais()) : null);
             interesado.setProvincia(inter.getProvincia() != null ? new Long(inter.getProvincia()) : null);
+            interesado.setDireccion(inter.getAdresa());
+            interesado.setCp(inter.getCodiPostal());
+            interesado.setLocalidad(inter.getMunicipi() != null ? new Long(inter.getMunicipi()) : null);
+            interesado.setTelefono(inter.getTelefon());
             interesadoWs.setInteresado(interesado);
 
             if (inter.getRepresentant() != null) {
@@ -112,6 +104,10 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 	            representante.setApellido2(repre.getLlinatge2());
 	            representante.setPais(repre.getPais() != null ? new Long(repre.getPais()) : null);
 	            representante.setProvincia(repre.getProvincia() != null ? new Long(repre.getProvincia()) : null);
+	            representante.setDireccion(repre.getAdresa());
+	            representante.setCp(repre.getCodiPostal());
+	            representante.setLocalidad(repre.getMunicipi() != null ? new Long(repre.getMunicipi()) : null);
+	            representante.setTelefono(repre.getTelefon());
 	            interesadoWs.setRepresentante(representante);
             }
             
@@ -125,17 +121,20 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
             anexoWs.setTipoDocumental("TD01");
             anexoWs.setTipoDocumento("02");
             anexoWs.setOrigenCiudadanoAdmin(ANEXO_ORIGEN_CIUDADANO.intValue());
-            anexoWs.setObservaciones("Observaciones de Marilen");
+            anexoWs.setObservaciones("");
             anexoWs.setModoFirma(MODO_FIRMA_ANEXO_SINFIRMA);
 
-            // Fichero Anexado
-            MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-            
             anexoWs.setFicheroAnexado(document.getArxiuContingut());
             anexoWs.setNombreFicheroAnexado(document.getArxiuNom());
             anexoWs.setFechaCaptura(new Timestamp(document.getData().getTime()));
             
-            anexoWs.setTipoMIMEFicheroAnexado("pdf");
+            InputStream is = new BufferedInputStream(new ByteArrayInputStream(document.getArxiuContingut()));
+            try {
+				String mimeType = URLConnection.guessContentTypeFromStream(is);
+				anexoWs.setTipoMIMEFicheroAnexado(mimeType);
+			} catch (IOException e) {
+				throw new RegistrePluginException("Error IOException: " + e);
+			}
         	
         	registroSalidaWs.getAnexos().add(anexoWs);
         }
@@ -161,128 +160,31 @@ public class RegistrePluginRegweb3 extends RegWeb3Utils implements RegistrePlugi
 		}
         return resposta;
 	}
-
 	
+	@Override
+	public RespostaConsultaRegistre obtenirRegistrSortida(String numRegistre, String usuariCodi, String entitatCodi)
+			throws RegistrePluginException {
+
+		RespostaConsultaRegistre resposta = new RespostaConsultaRegistre();
+		try {
+            RegistroSalidaResponseWs registroSalida = registroSalidaApi.obtenerRegistroSalida(numRegistre, usuariCodi, entitatCodi);
+            
+            resposta.setRegistreNumero(registroSalida.getNumeroRegistroFormateado());
+            resposta.setRegistreData(registroSalida.getFechaRegistro());
+            resposta.setEntitatCodi(registroSalida.getEntidadCodigo());
+            resposta.setEntitatDenominacio(registroSalida.getEntidadDenominacion());
+            resposta.setOficinaCodi(registroSalida.getOficinaCodigo());
+            resposta.setOficinaDenominacio(registroSalida.getOficinaDenominacion());
+            
+		} catch (WsI18NException e) {
+            String msg = WsClientUtils.toString(e);
+            throw new RegistrePluginException("Error WsI18NException: " + msg);
+        } catch (WsValidationException e) {
+            String msg = WsClientUtils.toString(e);
+            throw new RegistrePluginException("Error WsValidationException: " + msg);
+        }
+		
+		return resposta;
+	}
 	
-	public RespostaConsulta consultarSortida(
-			String organCodi,
-			String oficinaCodi,
-			String registreNumero) throws RegistrePluginException {
-		try {
-			ParametrosRegistroSalidaWS paramsws = new ParametrosRegistroSalidaWS();
-			paramsws.setUsuarioConexion(getUsuarioConexion());
-			paramsws.setPassword(getPassword());
-			paramsws.setUsuarioRegistro(getUsuariRegistre());
-			paramsws.setOficina(organCodi);
-			paramsws.setOficinafisica(oficinaCodi);
-			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
-			if (index == -1)
-				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
-			paramsws.setNumeroSalida(registreNumero.substring(0, index));
-			paramsws.setAnoSalida(registreNumero.substring(index + 1));
-			ParametrosRegistroSalidaWS llegit = getRegistreService().leerSalida(paramsws);
-			RespostaConsulta resposta = new RespostaConsulta();
-			resposta.setRegistreNumero(registreNumero);
-			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDatasalida() + " " + llegit.getHora()));
-			DadesOficina dadesOficina = new DadesOficina();
-			dadesOficina.setOrganCodi(llegit.getRemitent());
-			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
-			resposta.setDadesOficina(dadesOficina);
-			DadesInteressat dadesInteressat = new DadesInteressat();
-			if (llegit.getEntidad1() != null && !"".equals(llegit.getEntidad1()))
-				dadesInteressat.setEntitatCodi(
-						llegit.getEntidad1() + SEPARADOR_ENTITAT + llegit.getEntidad2());
-			dadesInteressat.setNomAmbCognoms(llegit.getAltres());
-			dadesInteressat.setMunicipiCodi(llegit.getBalears());
-			dadesInteressat.setMunicipiNom(llegit.getFora());
-			resposta.setDadesInteressat(dadesInteressat);
-			DadesAssumpte dadesAssumpte = new DadesAssumpte();
-			dadesAssumpte.setUnitatAdministrativa(llegit.getRemitent());
-			dadesAssumpte.setIdiomaCodi(llegit.getIdioex());
-			dadesAssumpte.setTipus(llegit.getTipo());
-			dadesAssumpte.setAssumpte(llegit.getComentario());
-			resposta.setDadesAssumpte(dadesAssumpte);
-			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
-			DocumentRegistre document = new DocumentRegistre();
-			document.setIdiomaCodi(llegit.getIdioma());
-			if (llegit.getData() != null)
-				document.setData(new SimpleDateFormat("dd/MM/yyyy").parse(llegit.getData()));
-			documents.add(document);
-			resposta.setDocuments(documents);
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("Error al consultar la sortida", ex);
-			throw new RegistrePluginException("Error al consultar la sortida", ex);
-		}
-	}
-
-	public RespostaAnotacioRegistre registrarNotificacio(
-			RegistreNotificacio registreNotificacio) throws RegistrePluginException {
-		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
-	}
-	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
-			String numeroRegistre) throws RegistrePluginException {
-		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
-	}
-
-	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
-		try {
-			if (oficinaCodi != null) {
-				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					ListaResultados lr = getRegistreService().buscarOficinasFisicasDescripcion(
-							getUsuarioConexion(),
-							getPassword(),
-							"tots",
-							"totes");
-					Iterator<String> it = Arrays.asList(lr.getResultado()).iterator();
-					while (it.hasNext()) {
-						String codiOficina = it.next();
-						String codiOficinaFisica = it.next();
-						@SuppressWarnings("unused")
-						String nomOficinaFisica = it.next();
-						String nomOficina = it.next();
-						String textComparacio = codiOficina + SEPARADOR_ENTITAT + codiOficinaFisica;
-						if (textComparacio.equals(oficinaCodi))
-							return nomOficina;
-					}
-				}
-			}
-			return null;
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
-			throw new RegistrePluginException("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
-		}
-	}
-
-
-
-	private RegwebFacade_PortType getRegistreService() throws Exception {
-		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.url") + "?wsdl";
-	    RegwebFacadeServiceLocator service = new RegwebFacadeServiceLocator();
-	    service.setRegwebFacadeEndpointAddress(url);
-	    return service.getRegwebFacade();
-	}
-
-	private String getUsuariRegistre() {
-		String usuari = null;
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null)
-			usuari = auth.getName();
-		return usuari;
-		/*if (usuari != null)
-			return usuari;
-		else
-			return getUsuarioConexion();*/
-	}
-	private String getUsuarioConexion() {
-		return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.usuari");
-	}
-	private String getPassword() {
-		return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.password");
-	}
-
-
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegweb3.class);
-
 }

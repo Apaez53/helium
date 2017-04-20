@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginEx
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginRegWeb3;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaConsultaRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
@@ -883,29 +884,22 @@ public class PluginHelper {
 			RegistreAnotacio anotacio,
 			Expedient expedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-//				new IntegracioParametreDto(
-//						"organCodi",
-//						anotacio.getOrganCodi()),
-//				new IntegracioParametreDto(
-//						"oficinaCodi",
-//						anotacio.getOficinaCodi()),
-//				new IntegracioParametreDto(
-//						"entitatCodi",
-//						anotacio.getEntitatCodi()),
-//				new IntegracioParametreDto(
-//						"unitatAdministrativa",
-//						anotacio.getUnitatAdministrativa()),
-//				new IntegracioParametreDto(
-//						"interessatNif",
-//						anotacio.getInteressatNif()),
-//				new IntegracioParametreDto(
-//						"assumpteExtracte",
-//						anotacio.getAssumpteExtracte())
+				new IntegracioParametreDto(
+						"organCodi",
+						anotacio.getOrgan()),
+				new IntegracioParametreDto(
+						"oficinaCodi",
+						anotacio.getOficinaCodi()),
+				new IntegracioParametreDto(
+						"llibreCodi",
+						anotacio.getLlibreCodi())
 		};
 		long t0 = System.currentTimeMillis();
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePluginRebWeb3().registrarSortida(
-					toRegistreAssentament(anotacio));
+					toRegistreAssentament(anotacio),
+					"Helium",
+					"3.2");
 			if (!resposta.isOk()) {
 				String errorDescripcio = "No s'ha pogut registrar la sortida (" +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
@@ -937,7 +931,7 @@ public class PluginHelper {
 						System.currentTimeMillis() - t0,
 						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
-				registreId.setNumero(resposta.getNumero());
+				registreId.setNumero(resposta.getNumeroRegistroFormateado());
 				registreId.setData(resposta.getData());
 				return registreId;
 			}
@@ -1178,7 +1172,81 @@ public class PluginHelper {
 					ex);
 		}
 	}
+	
+	public String registreOficinaNom(
+			String numRegistre,
+			String usuariCodi,
+			String entitatCodi,
+			Expedient expedient) {
+		
+		long t0 = System.currentTimeMillis();
+		try {
+			RespostaConsultaRegistre respostaConsultaRegistre = getRegistrePluginRebWeb3().obtenirRegistrSortida(
+					numRegistre,
+					usuariCodi,
+					entitatCodi);
+			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Obtenir nom de l'oficina",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					new IntegracioParametreDto(
+							"numRegistre",
+							numRegistre),
+					new IntegracioParametreDto(
+							"usuariCodi",
+							usuariCodi),
+					new IntegracioParametreDto(
+							"entitatCodi",
+							entitatCodi));
+			
+			return respostaConsultaRegistre.getOficinaDenominacio();
+		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'ha pogut obtenir el nom de l'oficina de registre (" +
+					"numRegistre=" + numRegistre + ", " +
+					"usuariCodi=" + usuariCodi + ", " +
+					"entitatCodi=" + entitatCodi + ")";
+			
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Obtenir nom de l'oficina",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"numRegistre",
+							numRegistre),
+					new IntegracioParametreDto(
+							"usuariCodi",
+							usuariCodi),
+					new IntegracioParametreDto(
+							"entitatCodi",
+							entitatCodi));
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre oficina nom: " + errorDescripcio + ")", 
+					ex);
+		}
+	}
+	
 	public boolean registreIsPluginActiu() {
+		return getRegistrePlugin() != null;
+	}
+	
+	public boolean registreIsPluginRebWeb3Actiu() {
 		return getRegistrePluginRebWeb3() != null;
 	}
 
@@ -2408,7 +2476,7 @@ public class PluginHelper {
 	
 	private RegistrePluginRegWeb3 getRegistrePluginRebWeb3() {
 		if (!registrePluginRegWeb3Evaluat) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.rw3.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);

@@ -707,6 +707,12 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 */
 	public boolean isRegistreActiu();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isRegistreRegWeb3Actiu();
 
 	/**
 	 * 
@@ -756,6 +762,20 @@ public interface Jbpm3HeliumService {
 	 */
 	public String registreObtenirOficinaNom(
 			String oficinaCodi,
+			Long expedientId) throws SistemaExternException, NoTrobatException;
+	
+	/**
+	 * 
+	 * @param numRegistre
+	 * @param usuariCodi
+	 * @param entitatCodi
+	 * @return
+	 * @throws PluginException
+	 */
+	public String registreObtenirOficinaNom(
+			String numRegistre,
+			String usuariCodi,
+			String entitatCodi,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**

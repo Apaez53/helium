@@ -1230,6 +1230,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Comprovant si el plugin de registre està actiu");
 		return pluginHelper.registreIsPluginActiu();
 	}
+	
+	@Override
+	public boolean isRegistreRegWeb3Actiu() {
+		logger.debug("Comprovant si el plugin de registre està actiu");
+		return pluginHelper.registreIsPluginRebWeb3Actiu();
+	}
 
 	@Override
 	public RegistreIdDto registreAnotacioEntrada(
@@ -1252,43 +1258,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioSortida(
 			RegistreAnotacioDto anotacio,
 			Long expedientId) {
-		/*RegistreSortida registreSortida = new RegistreSortida();
-		DadesOficina dadesOficina = new DadesOficina();
-		dadesOficina.setOrganCodi(anotacio.getOrganCodi());
-		dadesOficina.setOficinaCodi(anotacio.getOficinaCodi());
-		registreSortida.setDadesOficina(dadesOficina);
-		DadesInteressat dadesInteressat = new DadesInteressat();
-		dadesInteressat.setAutenticat(true);
-		dadesInteressat.setEntitatCodi(anotacio.getEntitatCodi());
-		dadesInteressat.setNomAmbCognoms(anotacio.getInteressatNomAmbCognoms());
-		dadesInteressat.setMunicipiCodi(anotacio.getInteressatMunicipiCodi());
-		dadesInteressat.setMunicipiNom(anotacio.getInteressatMunicipiNom());
-		registreSortida.setDadesInteressat(dadesInteressat);
-		DadesAssumpte dadesAssumpte = new DadesAssumpte();
-		String idiomaExtracte = anotacio.getAssumpteIdiomaCodi();
-		dadesAssumpte.setAssumpte(anotacio.getAssumpteExtracte());
-		dadesAssumpte.setIdiomaCodi(
-				(idiomaExtracte != null) ? idiomaExtracte : "ca");
-		dadesAssumpte.setTipus(
-				anotacio.getAssumpteTipus());
-		dadesAssumpte.setRegistreNumero(
-				anotacio.getAssumpteRegistreNumero());
-		dadesAssumpte.setRegistreAny(
-				anotacio.getAssumpteRegistreAny());
-		registreSortida.setDadesAssumpte(dadesAssumpte);
-		if (anotacio.getAnnexos() != null) {
-			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
-			for (RegistreAnnexDto annex: anotacio.getAnnexos()) {
-				DocumentRegistre document = new DocumentRegistre();
-				document.setNom(annex.getNom());
-				document.setIdiomaCodi((annex.getIdiomaCodi() != null) ? annex.getIdiomaCodi() : "ca");
-				document.setData(annex.getData());
-				document.setArxiuNom(annex.getArxiuNom());
-				document.setArxiuContingut(annex.getArxiuContingut());
-				documents.add(document);
-			}
-			registreSortida.setDocuments(documents);
-		}*/
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
@@ -1325,6 +1294,23 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			throw new NoTrobatException(Expedient.class, expedientId);
 		
 		return pluginHelper.registreOficinaNom(oficinaCodi, expedient);
+	}
+	
+	@Override
+	public String registreObtenirOficinaNom(
+			String numRegistre,
+			String usuariCodi,
+			String entitatCodi,
+			Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if (expedient == null)
+			throw new NoTrobatException(Expedient.class, expedientId);
+		
+		return pluginHelper.registreOficinaNom(
+				numRegistre, 
+				usuariCodi,
+				entitatCodi,
+				expedient);
 	}
 
 	@Override
@@ -2010,21 +1996,4 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		resposta.setData(respostaPlugin.getData());
 		return resposta;
 	}
-	
-//	@Override
-//	public RegistreIdDto obtenirRegistreSortida(RegistreAnotacio anotacio, Long expedientId) {
-//		
-//		Expedient expedient = expedientRepository.findOne(expedientId);
-//		if (expedient == null)
-//			throw new NoTrobatException(Expedient.class, expedientId);
-//		
-//		RegistreIdDto respostaPlugin = pluginHelper.registreAnotacioSortida(
-//				anotacio,
-//				expedient);
-//		RegistreIdDto resposta = new RegistreIdDto();
-//		resposta.setNumero(respostaPlugin.getNumero());
-//		resposta.setData(respostaPlugin.getData());
-//		return resposta;
-//	}
-
 }
