@@ -233,6 +233,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setCodi(expedientTipus.getCodi());
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
+		entity.setHeretable(expedientTipus.isHeretable());
+		if (expedientTipus.getHeretatId() != null)
+			entity.setHeretat(expedientTipusRepository.findOne(expedientTipus.getHeretatId()));
+		else
+			entity.setHeretat(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -292,6 +297,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
+		entity.setHeretable(expedientTipus.isHeretable());
+		if (expedientTipus.getHeretatId() != null)
+			entity.setHeretat(expedientTipusRepository.findOne(expedientTipus.getHeretatId()));
+		else
+			entity.setHeretat(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -1528,6 +1538,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return pagina;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<ExpedientTipusDto> findHeretables(Long entornId) {
+		logger.debug(
+				"Consultant la llista de tipus d'expedients heretables per entorn (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findHeretablesByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+
 
 	/**
 	 * {@inheritDoc}

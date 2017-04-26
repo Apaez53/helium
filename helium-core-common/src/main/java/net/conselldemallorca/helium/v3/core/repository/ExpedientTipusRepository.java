@@ -60,5 +60,13 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
+	
+	@Query(	"from ExpedientTipus e " +
+			"where " +
+			"    e.entorn = :entorn " +
+			"	and e.heretable = true " +
+			"order by e.nom asc ")
+	List<ExpedientTipus> findHeretablesByEntorn( @Param("entorn") Entorn entorn);
+
 
 }

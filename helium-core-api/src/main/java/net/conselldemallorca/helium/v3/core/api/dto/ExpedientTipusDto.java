@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 
 
-
 /**
  * DTO amb informació d'un tipus d'expedient.
  * 
@@ -40,6 +39,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private boolean ambInfoPropia;
+	private boolean heretable;
+	private Long heretatId;
 	private String diesNoLaborables;
 	private boolean notificacionsActivades;
 	private String notificacioOrganCodi;
@@ -186,6 +187,18 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
+	}
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	public Long getHeretatId() {
+		return heretatId;
+	}
+	public void setHeretatId(Long heretatId) {
+		this.heretatId = heretatId;
 	}
 	public String getDiesNoLaborables() {
 		return diesNoLaborables;

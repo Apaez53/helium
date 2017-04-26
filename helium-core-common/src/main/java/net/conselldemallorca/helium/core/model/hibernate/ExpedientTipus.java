@@ -85,6 +85,10 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
 	 */
 	private boolean ambInfoPropia;
+	/** Indica si altres tipus d'expedient amb informació pròpia poden heretar d'aquest tipus d'expedient. */
+	private boolean heretable;
+	/** Propietat de qui hereta les dades el tipus d'expedient. */
+	private ExpedientTipus heretat;
 	
 	private String diesNoLaborables;
 	
@@ -319,7 +323,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
 	}
-
+	@Column(name="heretable")
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	@ManyToOne
+	@JoinColumn(name="heretat_id")
+	@ForeignKey(name="hel_heretat_exptipus_fk")
+	public ExpedientTipus getHeretat() {
+		return heretat;
+	}
+	public void setHeretat(ExpedientTipus heretat) {
+		this.heretat = heretat;
+	}
 	@Column(name="reindexacio_asincrona")
 	public boolean isReindexacioAsincrona() {
 		return reindexacioAsincrona;

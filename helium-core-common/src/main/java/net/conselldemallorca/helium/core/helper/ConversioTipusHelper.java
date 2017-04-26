@@ -220,6 +220,8 @@ public class ConversioTipusHelper {
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
+						target.setHeretable(source.isHeretable());
+						target.setHeretatId(source.getHeretat() != null ? source.getHeretat().getId() : null );
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
 						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setNotificacionsActivades(source.isNotificacionsActivades());

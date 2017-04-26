@@ -194,6 +194,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findHeretables(Long entornId) {
+		return delegate.findHeretables(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,

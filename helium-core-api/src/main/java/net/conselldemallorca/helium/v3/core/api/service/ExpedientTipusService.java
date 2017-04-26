@@ -297,6 +297,13 @@ public interface ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/**
+	 * Retorna la llista de tipus d'expedients amb la propietat heretable certa.
+	 * @param entornId
+	 * @return La llista de tipus d'expedients que es poden heretar.
+	 */
+	public List<ExpedientTipusDto> findHeretables(Long entornId);
+	
+	/**
 	 * Modifica un permis existent d'un tipus d'expedient.
 	 * 
 	 * @param entornId

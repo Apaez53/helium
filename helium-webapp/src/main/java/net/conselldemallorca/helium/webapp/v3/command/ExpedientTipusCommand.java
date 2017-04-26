@@ -30,6 +30,8 @@ public class ExpedientTipusCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private boolean ambInfoPropia;
+	private boolean heretable;
+	private Long heretatId;
 	private boolean teTitol;
 	private boolean teNumero;
 	private boolean demanaTitol;
@@ -75,6 +77,18 @@ public class ExpedientTipusCommand {
 	}
 	public void setAmbInfoPropia(boolean ambInfoPropia) {
 		this.ambInfoPropia = ambInfoPropia;
+	}
+	public boolean isHeretable() {
+		return heretable;
+	}
+	public void setHeretable(boolean heretable) {
+		this.heretable = heretable;
+	}
+	public Long getHeretatId() {
+		return heretatId;
+	}
+	public void setHeretatId(Long heretatId) {
+		this.heretatId = heretatId;
 	}
 	public boolean isTeNumero() {
 		return teNumero;
