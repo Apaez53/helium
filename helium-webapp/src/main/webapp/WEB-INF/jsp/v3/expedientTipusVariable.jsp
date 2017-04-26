@@ -67,7 +67,17 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="agrupacio" data-visible="false"/>
 					<th data-col-name="ordre" width="5%"><spring:message code="expedient.tipus.camp.llistat.columna.ordre"/></th>
-					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.camp.llistat.columna.codi"/></th>
+					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusVariableCodiTemplate">
+					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
+						<script id="cellExpedientTipusVariableCodiTemplate" type="text/x-jsrender">
+								{{if ${not empty expedientTipus} && expedientTipus.id != ${expedientTipus != null? expedientTipus.id:0} }}
+									<span style="color:gray;">{{:codi}}</span> 
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:codi}}
+								{{/if}}
+						</script>
+					</th>
 					<th data-col-name="etiqueta"><spring:message code="expedient.tipus.camp.llistat.columna.etiqueta"/></th>
 					<th data-col-name="tipus"><spring:message code="expedient.tipus.camp.llistat.columna.tipus"/></th>
 					<th data-col-name="multiple" data-template="#cellexpedientTipusVariableMultibleTemplate">
@@ -111,6 +121,7 @@
 						</div>
 					</script>
 					</th>
+					<th data-col-name="expedientTipus.id" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

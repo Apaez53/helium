@@ -152,6 +152,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
+			if (expedientTipus.getHeretatId() != null)
+				model.addAttribute("heretat", expedientTipusService.findAmbId(expedientTipus.getHeretatId()));
 			// Responsable per defecte
 			if (expedientTipus.getResponsableDefecteCodi() != null) {
 				model.addAttribute(
@@ -284,10 +286,39 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (!expedientService.existsExpedientAmbEntornTipusITitol(
+		boolean error = false;
+		// Comprova que no hi hagi expedients
+		if (expedientService.existsExpedientAmbEntornTipusITitol(
 				entornActual.getId(),
 				id,
 				null)) {
+			error = true;
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.controller.eliminar.expedients.relacionats"));
+		}
+		// Comprova que no hi hagi tipus d'expedients que heretin
+		List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(id); 
+		if (heretats.size() > 0) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.controller.eliminar.tipus.heretats",
+							new Object[] {heretats.size()}));
+			for (ExpedientTipusDto heretat : heretats) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.controller.eliminar.tipus.heretat",
+								new Object[] {heretat.getCodi(), heretat.getNom()}));
+			}
+			error = true;
+		}
+		if (!error) {
 			expedientTipusService.delete(
 					entornActual.getId(),
 					id);
@@ -296,12 +327,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					getMessage(
 							request,
 							"expedient.tipus.controller.eliminat"));
-		} else {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.controller.eliminar.expedients.relacionats"));
 		}			
 		return "redirect:/v3/expedientTipus";
 	}

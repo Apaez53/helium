@@ -128,6 +128,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbId(Long expedientTipusId) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisConsultar(
 			Long entornId,
 			Long expedientTipusId) {
@@ -196,6 +202,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findHeretables(Long entornId) {
 		return delegate.findHeretables(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId) {
+		return delegate.findHeretats(expedientTipusId);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  * - Si és amb info pròpia:
  * 		- Si és heretable no pot heretar
  * 		- Si hereta no pot ser heretable
+ * 		- Si es desmarca heretable i té expedients tipus que hereden llavors no deixa desmarcar-ho.
  * - Si la opció de seqüència manual d'anys està activada:
  * 	- Comprova que no hi hagi valors nuls.
  * 	- Comprova que no hi hagi anys repetits.
@@ -78,6 +80,19 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretat.sense.info.propia", null))
 						.addNode("heretatId")
+						.addConstraintViolation();	
+				valid = false;
+			}
+		}
+		// Si hi ha tipus que hereden llavors no es pot demarcar la opció d'heretable
+		if (command.getId() != null && !command.isHeretable()) {
+			List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(command.getId());
+			if (heretats.size() > 0) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(
+								this.codiMissatge + ".no.heretable.amb.heretats", 
+								new Object[] {heretats.size()}))
+						.addNode("heretable")
 						.addConstraintViolation();	
 				valid = false;
 			}

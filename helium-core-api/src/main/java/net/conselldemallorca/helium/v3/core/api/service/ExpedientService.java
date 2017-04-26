@@ -340,7 +340,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats);
-
+	
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
 	 * 
@@ -869,4 +869,5 @@ public interface ExpedientService {
 	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
 
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
+
 }

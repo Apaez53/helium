@@ -765,7 +765,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		return expedientsIds.getLlista();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

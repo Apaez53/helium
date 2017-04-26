@@ -1277,6 +1277,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional
+	public ExpedientTipusDto findAmbId(Long expedientTipusId) throws NoTrobatException {
+		logger.debug(
+				"Consultant tipus d'expedient amb id (" +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		ExpedientTipus tipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		if (tipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		
+		return conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) {
 		logger.debug(
@@ -1557,6 +1577,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId) {
+		logger.debug("Consultant els tipus heretats (expedientTipusId=" + expedientTipusId + ")");
+		List<ExpedientTipus> heretats = expedientTipusRepository.findByHeretatIdOrderByCodiAsc(expedientTipusId); 
+		return conversioTipusHelper.convertirList(
+				heretats, 
+				ExpedientTipusDto.class);
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -37,9 +37,12 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 
 	Camp findById(Long registreEsborrarId);
 	
-	@Query(	"from Camp c " +
+	@Query(	"select c " + 
+			"from Camp c " +
 			"where " +
-			"   (c.expedientTipus.id = :expedientTipusId or c.expedientTipus.id is null) " +
+			"   (	c.expedientTipus.id = :expedientTipusId " +
+			"		or c.expedientTipus.id in (select heretat.id from ExpedientTipus where id = :expedientTipusId) " +
+			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")

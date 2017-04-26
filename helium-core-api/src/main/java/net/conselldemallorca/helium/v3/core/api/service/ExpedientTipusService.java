@@ -183,6 +183,14 @@ public interface ExpedientTipusService {
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) throws NoTrobatException;
 
+	/** Consulta el tipus d'expedient 
+	 * 
+	 * @param expedientTipusId Identificador.
+	 * @return Retorna el tipus d'expedient a consultar.
+	 * @throws NoTrobatException Excepció si no el troba per ID. 
+	 */
+	public ExpedientTipusDto findAmbId(Long expedientTipusId) throws NoTrobatException;
+
 	/**
 	 * Retorna un tipus d'expedient donat el seu id per a consultar.
 	 * 
@@ -302,6 +310,13 @@ public interface ExpedientTipusService {
 	 * @return La llista de tipus d'expedients que es poden heretar.
 	 */
 	public List<ExpedientTipusDto> findHeretables(Long entornId);
+	
+	/**
+	 * Retorna la llista de tipus d'expedients que hereten del tipus d'expedient passat com a paràmetre.
+	 * @param expedientTipusId Tipus d'expedient pare
+	 * @return La llista de tipus d'expedients que tenen el tipus d'expedient com a heretat.
+	 */
+	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId);
 	
 	/**
 	 * Modifica un permis existent d'un tipus d'expedient.
@@ -1033,6 +1048,7 @@ public interface ExpedientTipusService {
 	public List<PersonaDto> personaFindAll(
 			Long entornId,
 			Long expedientTipusId) throws Exception;
+
 
 
 }
