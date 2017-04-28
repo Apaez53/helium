@@ -57,12 +57,12 @@
 							<c:if test="${expedientTipus.heretable}">
 								, <spring:message code="expedient.tipus.info.camp.ambInfoPropia.heretable"/>
 							</c:if>
-							<c:if test="${not empty heretat}">
+							<c:if test="${not empty expedientTipusPare}">
 								, 
-								<a href="../expedientTipus/${heretat.id}">
+								<a href="../expedientTipus/${expedientTipusPare.id}">
 									<span class="label label-primary" 
-										title="<spring:message code="expedient.tipus.info.camp.ambInfoPropia.heretat" 
-										arguments="${heretat.codi},${heretat.nom}" htmlEscape="true"/>">R</span>
+										title="<spring:message code="expedient.tipus.info.camp.ambInfoPropia.expedientTipusPare" 
+										arguments="${expedientTipusPare.codi},${expedientTipusPare.nom}" htmlEscape="true"/>">R</span>
 								</a>
 							</c:if>
 						</dd>

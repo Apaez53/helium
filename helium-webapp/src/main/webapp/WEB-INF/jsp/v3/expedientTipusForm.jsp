@@ -48,19 +48,19 @@
 					// Habilita o deshabilita les opcions d'herència
 					$('#ambInfoPropia').click(function() {
 						if($(this).is(':checked')){
-					        $('#heretable,#heretatId').removeAttr("disabled");
+					        $('#heretable,#expedientTipusPareId').removeAttr("disabled");
 					    }else {
-					        $('#heretable,#heretatId').attr("disabled", "true");
+					        $('#heretable,#expedientTipusPareId').attr("disabled", "true");
 					    }
 					});
-					// Si és heretable esborra el valor d'heretat
+					// Si és heretable esborra el valor d'expedientTipusPare
 					$('#heretable').click(function() {
 						if($(this).is(':checked')){
-					        $('#heretatId').val('').change();
+					        $('#expedientTipusPareId').val('').change();
 					    }
 					});
 					// Si hereta el desmarca d'heretable
-					$('#heretatId').change(function() {
+					$('#expedientTipusPareId').change(function() {
 						if($(this).val() != ''){
 					        $('#heretable').prop('checked', false);
 					    }
@@ -111,7 +111,7 @@
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
 			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
 			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />
-			<hel:inputSelect name="heretatId" textKey="expedient.tipus.form.camp.heretat" optionItems="${expedientTipusPares}" optionTextAttribute="nom" optionValueAttribute="id" emptyOption="true" disabled="${! expedientTipusCommand.ambInfoPropia}" />
+			<hel:inputSelect name="expedientTipusPareId" textKey="expedient.tipus.form.camp.expedientTipusPare" optionItems="${expedientTipusPares}" optionTextAttribute="nom" optionValueAttribute="id" emptyOption="true" disabled="${! expedientTipusCommand.ambInfoPropia}" />
 			<hel:inputCheckbox name="teTitol" textKey="expedient.tipus.form.camp.teTitol"/>
 			<hel:inputCheckbox name="demanaTitol" textKey="expedient.tipus.form.camp.demanaTitol" />
 			<hel:inputCheckbox name="teNumero" textKey="expedient.tipus.form.camp.teNumero" />

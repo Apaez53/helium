@@ -70,11 +70,14 @@
 					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusVariableCodiTemplate">
 					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
 						<script id="cellExpedientTipusVariableCodiTemplate" type="text/x-jsrender">
-								{{if ${not empty expedientTipus} && expedientTipus.id != ${expedientTipus != null? expedientTipus.id:0} }}
-									<span style="color:gray;">{{:codi}}</span> 
+								{{if heretat }}
+									<span class="dada-heretada">{{:codi}}</span> 
 									<span class="label label-primary" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
+									{{if sobreescriu }}
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.camp.llistat.codi.sobreescriu"/>">S</span>
+									{{/if}}
 								{{/if}}
 						</script>
 					</th>
@@ -121,7 +124,8 @@
 						</div>
 					</script>
 					</th>
-					<th data-col-name="expedientTipus.id" data-visible="false"/>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>
