@@ -63,19 +63,6 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
 	
-	@Query( "select e.codi " +
-			"from Estat e " +
-			"where e.expedientTipus.id = :expedientTipusId ")
-	public List<String> findCodis(@Param("expedientTipusId") Long expedientTipusId);
-
-	@Query("select e.id " +
-		   "from Estat e " +
-		   "where e.expedientTipus.id = :expedientTipusId " +
-		   "	and e.codi in :codis")
-	public List<Long> getIds(
-			@Param("expedientTipusId") Long expedientTipusId, 
-			@Param("codis") Set<String> codis);
-
 	/** Troba tots els estats donat un tipus d'expedient, incloent els del tipus pare i excloent els ids passats per paràmetre.*/
 	@Query(	"from Estat e " +
 			"where " +
@@ -86,5 +73,15 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	public List<Estat> findAll(
 			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("expedientTipusPareId") Long expedientTipusPareId, 
-			@Param("exclude") Set<Long> exclude);		
+			@Param("exclude") Set<Long> exclude);	
+	
+	
+	@Query( "select es " +
+			"from Estat e " +
+			"	join e.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Estat es " +
+			"where " +
+			"	es.codi = e.codi " +
+			" 	and es.expedientTipus.id = et.expedientTipusPare.id ")
+	List<Estat> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);	
 }
