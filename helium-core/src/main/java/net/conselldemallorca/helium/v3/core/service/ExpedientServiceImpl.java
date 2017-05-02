@@ -603,7 +603,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (estatId != null) {
 			estat = estatRepository.findByExpedientTipusAndId(
 					expedientTipus.getId(), 
-					expedientTipus.getExpedientTipusPare() != null? expedientTipus.getExpedientTipusPare().getId() : null,
 					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
@@ -725,7 +724,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (estatId != null) {
 			estat = estatRepository.findByExpedientTipusAndId(
 					expedientTipus.getId(), 
-					expedientTipus.getExpedientTipusPare() != null? expedientTipus.getExpedientTipusPare().getId() : null,
 					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");

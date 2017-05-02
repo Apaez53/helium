@@ -2120,6 +2120,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
 
+		// Determina si hi ha herència 
 		boolean herencia = expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
 		Set<Long> sobreescritsIds = new HashSet<Long>();
 		Set<String> sobreescritsCodis = new HashSet<String>();

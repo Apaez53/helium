@@ -32,12 +32,14 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			"where " +
 			"  	e.id = :id " +
 			"  	and (e.expedientTipus.id = :expedientTipusId " +
-			"			or e.expedientTipus.id = :expedientTipusPareId) ")
+			"			or e.expedientTipus.id = ( " + 
+			"				select et.expedientTipusPare.id " + 
+			"				from ExpedientTipus et " + 
+			"				where et.id = :expedientTipusId)) ")
 	public Estat findByExpedientTipusAndId(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("expedientTipusPareId") Long expedientTipusPare,
 			@Param("id") Long id);
-
+	
 	/** Consulta per expedient tipus id i el codi. No té en compte l'herència. */
 	public Estat findByExpedientTipusIdAndCodi(
 			Long expedientTipusId,
