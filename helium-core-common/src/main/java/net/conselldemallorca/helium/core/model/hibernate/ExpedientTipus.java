@@ -88,7 +88,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	/** Indica si altres tipus d'expedient amb informació pròpia poden heretar d'aquest tipus d'expedient. */
 	private boolean heretable;
 	/** Propietat de qui hereta les dades el tipus d'expedient. */
-	private ExpedientTipus heretat;
+	private ExpedientTipus expedientTipusPare;
 	
 	private String diesNoLaborables;
 	
@@ -331,13 +331,13 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.heretable = heretable;
 	}
 	@ManyToOne
-	@JoinColumn(name="heretat_id")
-	@ForeignKey(name="hel_heretat_exptipus_fk")
-	public ExpedientTipus getHeretat() {
-		return heretat;
+	@JoinColumn(name="expedient_tipus_pare_id")
+	@ForeignKey(name="hel_exptipus_pare_exptipus_fk")
+	public ExpedientTipus getExpedientTipusPare() {
+		return expedientTipusPare;
 	}
-	public void setHeretat(ExpedientTipus heretat) {
-		this.heretat = heretat;
+	public void setExpedientTipusPare(ExpedientTipus expedientTipusPare) {
+		this.expedientTipusPare = expedientTipusPare;
 	}
 	@Column(name="reindexacio_asincrona")
 	public boolean isReindexacioAsincrona() {

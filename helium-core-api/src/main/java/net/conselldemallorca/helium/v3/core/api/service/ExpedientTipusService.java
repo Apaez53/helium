@@ -611,21 +611,9 @@ public interface ExpedientTipusService {
 	/***********************************************/
 	/********************ESTATS*********************/
 	/***********************************************/
-	
-	/**
-	 * Retorna els estats per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws NoTrobatException
-	 * @throws PermisDenegatException
-	 */
-	public List<EstatDto> estatFindAll(
-			Long expedientTipusId,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
 	/**
-	 * Retorna els estats per a un tipus d'expedient.
+	 * Retorna els estats per a un tipus d'expedient sense tenir en compte l'herència.
 	 * 
 	 * @param expedientTipusId
 	 * @return
@@ -638,12 +626,13 @@ public interface ExpedientTipusService {
 	 * Retorna el estat del tipus d'expedient donat el seu identificador.
 	 * 
 	 * @param estatId
+	 * @param id 
 	 * 
 	 * @return El estat del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public EstatDto estatFindAmbId(Long estatId);
+	public EstatDto estatFindAmbId( Long expedientTipusId, Long estatId);
 
 	
 	public EstatDto estatFindAmbCodi(Long expedientTipusId, String codi);

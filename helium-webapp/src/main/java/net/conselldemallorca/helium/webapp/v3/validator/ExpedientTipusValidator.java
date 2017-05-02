@@ -60,7 +60,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 		}
 		// Si té informació pròpia llavors només pot heretar o ser heretable, però no les dues a la vegada
 		if (command.isAmbInfoPropia()) {
-			if (command.isHeretable() && command.getHeretatId() != null) {
+			if (command.isHeretable() && command.getExpedientTipusPareId() != null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable.i.heretat", null))
 						.addNode("ambInfoPropia")
@@ -76,7 +76,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 						.addConstraintViolation();	
 				valid = false;
 			}
-			if (command.getHeretatId() != null) {
+			if (command.getExpedientTipusPareId() != null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretat.sense.info.propia", null))
 						.addNode("heretatId")

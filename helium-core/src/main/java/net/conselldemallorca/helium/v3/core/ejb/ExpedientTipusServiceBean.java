@@ -307,13 +307,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EstatDto> estatFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams)
-			throws NoTrobatException, PermisDenegatException {
-		return delegate.estatFindAll(expedientTipusId, paginacioParams);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EstatDto> estatFindAll(Long expedientTipusId)
 			throws NoTrobatException, PermisDenegatException {
 		return delegate.estatFindAll(expedientTipusId);
@@ -321,8 +314,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public EstatDto estatFindAmbId(Long estatId) {
-		return delegate.estatFindAmbId(estatId);
+	public EstatDto estatFindAmbId(Long expedientTipusId, Long estatId) {
+		return delegate.estatFindAmbId(expedientTipusId, estatId);
 	}
 
 	@Override

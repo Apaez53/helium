@@ -150,7 +150,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		EstatDto dto = expedientTipusService.estatFindAmbId(id);
+		EstatDto dto = expedientTipusService.estatFindAmbId(expedientTipusId, id);
 		ExpedientTipusEstatCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusEstatCommand.class);
@@ -158,6 +158,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		
 		model.addAttribute("expedientTipusEstatCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusEstatForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.POST)
@@ -170,6 +171,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+    		model.addAttribute("heretat", expedientTipusService.estatFindAmbId(expedientTipusId, id).isHeretat());
         	return "v3/expedientTipusEstatForm";
         } else {
         	expedientTipusService.estatUpdate(
@@ -255,7 +257,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         	try {
     			if (command.isEliminarValorsAntics()) {
     				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId))
-    					expedientTipusService.estatDelete(estat.getId());
+   						expedientTipusService.estatDelete(estat.getId());
     			}
     			BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
     			String linia = br.readLine();

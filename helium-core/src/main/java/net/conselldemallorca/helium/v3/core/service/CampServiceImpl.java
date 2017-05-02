@@ -5,8 +5,10 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -329,7 +331,21 @@ public class CampServiceImpl implements CampService {
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
-						
+		
+		List<Camp> sobreescrits = new ArrayList<Camp>();
+		if (expedientTipusId != null){
+			// Consulta els camps sobreescrits
+			sobreescrits.addAll(campRepository.findSobrescrits(expedientTipusId));
+		}
+		// Posa en conjunts hash els ids i codis dels camps sobreescrits
+		Set<Long> sobreescritsIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		for (Camp c : sobreescrits) {
+			sobreescritsIds.add(c.getId());
+			sobreescritsCodis.add(c.getCodi());
+		}
+		if (sobreescritsIds.isEmpty())
+			sobreescritsIds.add(0L);						
 		
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
@@ -340,6 +356,7 @@ public class CampServiceImpl implements CampService {
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
 						filtre, 
+						sobreescritsIds,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				CampDto.class);
@@ -355,7 +372,9 @@ public class CampServiceImpl implements CampService {
 				definicioProcesId,
 				agrupacioId == null,
 				agrupacioId); 
+		
 		for (CampDto dto: pagina.getContingut()) {
+			// Validacions
 			for (Object[] reg: countValidacions) {
 				Long campId = (Long)reg[0];
 				if (campId.equals(dto.getId())) {
@@ -365,6 +384,7 @@ public class CampServiceImpl implements CampService {
 					break;
 				}
 			}
+			// Camps registre
 			if (dto.getTipus() == CampTipusDto.REGISTRE) {
 				for (Object[] reg: countMembres) {
 					Long campId = (Long)reg[0];
@@ -376,6 +396,12 @@ public class CampServiceImpl implements CampService {
 					}
 				}
 			}
+			// Sobreescriu
+			if (sobreescritsCodis.contains(dto.getCodi()))
+				dto.setSobreescriu(true);
+			// Heretat
+			if (expedientTipusId != null && !expedientTipusId.equals(dto.getExpedientTipus().getId()))
+				dto.setHeretat(true);			
 		}		
 		
 		return pagina;		

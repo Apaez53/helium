@@ -152,8 +152,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
-			if (expedientTipus.getHeretatId() != null)
-				model.addAttribute("heretat", expedientTipusService.findAmbId(expedientTipus.getHeretatId()));
+			if (expedientTipus.getExpedientTipusPareId() != null)
+				model.addAttribute("expedientTipusPare", expedientTipusService.findAmbId(expedientTipus.getExpedientTipusPareId()));
 			// Responsable per defecte
 			if (expedientTipus.getResponsableDefecteCodi() != null) {
 				model.addAttribute(

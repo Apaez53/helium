@@ -94,11 +94,6 @@ $(document).ready(function() {
 	    			filaMovem = row.rowIndex-1;
 			}
 	    });
-		$("#expedientTipusEstat tr").hover(function() {
-	        $(this.cells[0]).addClass('showDragHandle');
-	    }, function() {
-	        $(this.cells[0]).removeClass('showDragHandle');
-	    });
 		// Refresca els missatges
 		webutilRefreshMissatges();
 	});

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -234,10 +235,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
-		if (expedientTipus.getHeretatId() != null)
-			entity.setHeretat(expedientTipusRepository.findOne(expedientTipus.getHeretatId()));
+		if (expedientTipus.getExpedientTipusPareId() != null)
+			entity.setExpedientTipusPare(expedientTipusRepository.findOne(expedientTipus.getExpedientTipusPareId()));
 		else
-			entity.setHeretat(null);
+			entity.setExpedientTipusPare(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -298,10 +299,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
-		if (expedientTipus.getHeretatId() != null)
-			entity.setHeretat(expedientTipusRepository.findOne(expedientTipus.getHeretatId()));
+		if (expedientTipus.getExpedientTipusPareId() != null)
+			entity.setExpedientTipusPare(expedientTipusRepository.findOne(expedientTipus.getExpedientTipusPareId()));
 		else
-			entity.setHeretat(null);
+			entity.setExpedientTipusPare(null);
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -1584,7 +1585,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public List<ExpedientTipusDto> findHeretats(Long expedientTipusId) {
 		logger.debug("Consultant els tipus heretats (expedientTipusId=" + expedientTipusId + ")");
-		List<ExpedientTipus> heretats = expedientTipusRepository.findByHeretatIdOrderByCodiAsc(expedientTipusId); 
+		List<ExpedientTipus> heretats = expedientTipusRepository.findByExpedientTipusPareIdOrderByCodiAsc(expedientTipusId); 
 		return conversioTipusHelper.convertirList(
 				heretats, 
 				ExpedientTipusDto.class);
@@ -1930,21 +1931,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	/*******************ESTATS**********************/
 	/***********************************************/
 	
-	@Override
-	@Transactional(readOnly = true)
-	public List<EstatDto> estatFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
-		// Recupera el tipus d'expedient
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-				expedientTipusId);
-		List<Estat> estats = null;
-		// Recupera la informació dels terminis de l'expedient
-		estats = estatRepository.findByExpedientTipusId(
-				expedientTipusId, 
-				paginacioHelper.toSpringDataPageable(paginacioParams));
-		return conversioTipusHelper.convertirList(
-				estats, 
-				EstatDto.class);
-	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1959,17 +1945,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public EstatDto estatFindAmbId(Long estatId) {
+	public EstatDto estatFindAmbId(
+			Long expedientTipusId,
+			Long estatId) {
 		logger.debug(
 				"Consultant el l'estat amb id (" +
+				"expedientTipusId=" + expedientTipusId + "," +		
 				"estatId=" + estatId +  ")");
+		ExpedientTipus tipus = expedientTipusRepository.findById(expedientTipusId);
 		Estat estat = estatRepository.findOne(estatId);
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
-		return conversioTipusHelper.convertir(
+		EstatDto dto = conversioTipusHelper.convertir(
 				estat, 
 				EstatDto.class);
+		// Herencia
+		if (tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(estatRepository.findByExpedientTipusAndCodi(tipus.getExpedientTipusPare(), estat.getCodi()) != null);					
+		}
+		return dto;
 	}
 	
 	@Override
@@ -1984,12 +1982,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(
 				expedientTipusId, 
 				codi);
-		if (estat == null)
-			return null;
-		else
-			return conversioTipusHelper.convertir(
-				estat, 
-				EstatDto.class);
+		EstatDto dto = null;
+		if (estat != null) {
+			dto = conversioTipusHelper.convertir(
+					estat, 
+					EstatDto.class);
+			dto.setHeretat(!expedientTipusId.equals(estat.getExpedientTipus().getId()));
+			if (estat.getExpedientTipus().getExpedientTipusPare() != null)
+				dto.setSobreescriu(null != estatRepository.findByExpedientTipusIdAndCodi(
+															estat.getExpedientTipus().getExpedientTipusPare().getId(), 
+															codi));
+		}
+		return dto;
 	}
 
 	@Override
@@ -2059,17 +2063,44 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant els estats per al tipus d'expedient per datatable (" +
 				"entornId=" + expedientTipusId + ", " +
 				"filtre=" + filtre + ")");
-		
-		expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+
+		boolean herencia = expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null; 
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		Set<String> codisHeretats = new HashSet<String>();
+		Set<Long> sobreescritsIds = new HashSet<Long>();
+		if (herencia) {
+			codisHeretats.addAll( estatRepository.findCodis(expedientTipus.getExpedientTipusPare().getId()));
+			sobreescritsCodis.addAll( estatRepository.findCodis(expedientTipusId));
+			sobreescritsCodis.retainAll(codisHeretats);
+			if (!sobreescritsCodis.isEmpty())
+				sobreescritsIds.addAll(estatRepository.getIds(expedientTipus.getExpedientTipusPare().getId(), sobreescritsCodis));
+		}
+		if (sobreescritsIds.isEmpty())
+			sobreescritsIds.add(0L);
 		
 		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
 				estatRepository.findByFiltrePaginat(
 						expedientTipusId,
+						herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 						filtre == null || "".equals(filtre), 
 						filtre, 
+						sobreescritsIds,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				EstatDto.class);		
+		
+		// Completa les propietats dels dto's
+		if(herencia)
+			for (EstatDto dto: pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (codisHeretats.contains(dto.getCodi()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);			
+			}				
 		return pagina;		
 	}
 	

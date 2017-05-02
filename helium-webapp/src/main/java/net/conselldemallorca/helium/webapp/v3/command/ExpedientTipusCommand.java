@@ -31,7 +31,7 @@ public class ExpedientTipusCommand {
 	private String nom;
 	private boolean ambInfoPropia;
 	private boolean heretable;
-	private Long heretatId;
+	private Long expedientTipusPareId;
 	private boolean teTitol;
 	private boolean teNumero;
 	private boolean demanaTitol;
@@ -84,11 +84,11 @@ public class ExpedientTipusCommand {
 	public void setHeretable(boolean heretable) {
 		this.heretable = heretable;
 	}
-	public Long getHeretatId() {
-		return heretatId;
+	public Long getExpedientTipusPareId() {
+		return expedientTipusPareId;
 	}
-	public void setHeretatId(Long heretatId) {
-		this.heretatId = heretatId;
+	public void setExpedientTipusPareId(Long expedientTipusPareId) {
+		this.expedientTipusPareId = expedientTipusPareId;
 	}
 	public boolean isTeNumero() {
 		return teNumero;

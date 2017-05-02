@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,9 +40,10 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	@Query(	"select c " + 
 			"from Camp c " +
-			"where " +
-			"   (	c.expedientTipus.id = :expedientTipusId " +
-			"		or c.expedientTipus.id in (select heretat.id from ExpedientTipus where id = :expedientTipusId) " +
+			"where " + 
+			"	c.id not in (:exclude) " +
+			"  	and (	c.expedientTipus.id = :expedientTipusId " +
+			"		or c.expedientTipus.id in (select expedientTipusPare.id from ExpedientTipus where id = :expedientTipusId) " +
 			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
@@ -54,6 +56,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("agrupacioId") Long agrupacioId,		
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
 	
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */
@@ -110,4 +113,13 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
 			@Param("agrupacioId") Long agrupacioId);
+
+	@Query( "select cs " +
+			"from Camp c " +
+			"	join c.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Camp cs " +
+			"where " +
+			"	cs.codi = c.codi " +
+			" 	and cs.expedientTipus.id = et.expedientTipusPare.id ")
+	List<Camp> findSobrescrits(@Param("expedientTipusId") Long expedientTipusId);
 }

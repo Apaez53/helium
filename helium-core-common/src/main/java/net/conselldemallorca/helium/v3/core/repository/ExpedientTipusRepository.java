@@ -68,7 +68,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			"order by e.nom asc ")
 	List<ExpedientTipus> findHeretablesByEntorn( @Param("entorn") Entorn entorn);
 	
-	List<ExpedientTipus> findByHeretatIdOrderByCodiAsc(Long heretatId);
+	List<ExpedientTipus> findByExpedientTipusPareIdOrderByCodiAsc(Long expedientTipusPareId);
 
 
 }

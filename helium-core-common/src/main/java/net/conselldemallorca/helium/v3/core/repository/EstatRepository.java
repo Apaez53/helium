@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,8 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 
 	public List<Estat> findByExpedientTipusOrderByOrdreAsc(
 			ExpedientTipus expedientTipus);
+	
+	public List<Estat> findByExpedientTipusId(Long expedientTipusId);
 
 	public Estat findByExpedientTipusAndCodi(
 			ExpedientTipus expedientTipus,
@@ -38,7 +41,6 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			Long expedientTipusId,
 			String codi);
 
-
 	public Estat findById(Long id);
 
 	public List<Estat> findByExpedientTipusId(Long expedientTipusId, Pageable springDataPageable);
@@ -50,15 +52,29 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 
 	@Query(	"from Estat e " +
 			"where " +
-			"   e.expedientTipus.id = :expedientTipusId " +
+			"	e.id not in (:exclude) " +
+			"  	and (e.expedientTipus.id = :expedientTipusId " +
+			"			or e.expedientTipus.id = :expedientTipusPareId) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) " +
 			"order by e.ordre asc")
 	Page<Estat> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
+	
+	@Query( "select e.codi " +
+			"from Estat e " +
+			"where e.expedientTipus.id = :expedientTipusId ")
+	public List<String> findCodis(@Param("expedientTipusId") Long expedientTipusId);
 
-	public List<Estat> findByExpedientTipusId(Long expedientTipusId);
-		
+	@Query("select e.id " +
+		   "from Estat e " +
+		   "where e.expedientTipus.id = :expedientTipusId " +
+		   "	and e.codi in :codis")
+	public List<Long> getIds(
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("codis") Set<String> codis);		
 }
