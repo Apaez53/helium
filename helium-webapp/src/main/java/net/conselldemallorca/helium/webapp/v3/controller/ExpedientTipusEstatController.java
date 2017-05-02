@@ -256,7 +256,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			int actualitzacions = 0;
         	try {
     			if (command.isEliminarValorsAntics()) {
-    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId))
+    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false))
    						expedientTipusService.estatDelete(estat.getId());
     			}
     			BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));

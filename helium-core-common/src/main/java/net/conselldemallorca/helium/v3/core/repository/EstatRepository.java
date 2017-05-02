@@ -26,24 +26,22 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 
 	public List<Estat> findByExpedientTipusOrderByOrdreAsc(
 			ExpedientTipus expedientTipus);
-	
-	public List<Estat> findByExpedientTipusId(Long expedientTipusId);
 
-	public Estat findByExpedientTipusAndCodi(
-			ExpedientTipus expedientTipus,
-			String codi);
-
+	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	@Query(	"from Estat e " +
+			"where " +
+			"  	e.id = :id " +
+			"  	and (e.expedientTipus.id = :expedientTipusId " +
+			"			or e.expedientTipus.id = :expedientTipusPareId) ")
 	public Estat findByExpedientTipusAndId(
-			ExpedientTipus expedientTipus,
-			Long id);
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPare,
+			@Param("id") Long id);
 
+	/** Consulta per expedient tipus id i el codi. No té en compte l'herència. */
 	public Estat findByExpedientTipusIdAndCodi(
 			Long expedientTipusId,
 			String codi);
-
-	public Estat findById(Long id);
-
-	public List<Estat> findByExpedientTipusId(Long expedientTipusId, Pageable springDataPageable);
 	
 	@Query("select max(e.ordre) "
 			+ "from Estat e "
@@ -76,5 +74,17 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 		   "	and e.codi in :codis")
 	public List<Long> getIds(
 			@Param("expedientTipusId") Long expedientTipusId, 
-			@Param("codis") Set<String> codis);		
+			@Param("codis") Set<String> codis);
+
+	/** Troba tots els estats donat un tipus d'expedient, incloent els del tipus pare i excloent els ids passats per paràmetre.*/
+	@Query(	"from Estat e " +
+			"where " +
+			"	e.id not in (:exclude) " +
+			"  	and (e.expedientTipus.id = :expedientTipusId " +
+			"			or e.expedientTipus.id = :expedientTipusPareId) " +
+			"order by e.ordre asc")
+	public List<Estat> findAll(
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("expedientTipusPareId") Long expedientTipusPareId, 
+			@Param("exclude") Set<Long> exclude);		
 }

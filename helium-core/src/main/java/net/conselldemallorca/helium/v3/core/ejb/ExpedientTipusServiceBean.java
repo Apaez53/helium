@@ -307,9 +307,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EstatDto> estatFindAll(Long expedientTipusId)
+	public List<EstatDto> estatFindAll(Long expedientTipusId, boolean ambHerencia)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.estatFindAll(expedientTipusId);
+		return delegate.estatFindAll(expedientTipusId, ambHerencia);
 	}
 	
 	@Override

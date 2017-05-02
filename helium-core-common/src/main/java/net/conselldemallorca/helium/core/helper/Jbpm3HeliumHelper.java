@@ -196,6 +196,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 
+	@Resource
+	private EstatHelper estatHelper;
 
 
 	@Override
@@ -429,9 +431,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"estatCodi=" + estatCodi + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Estat estat = estatRepository.findByExpedientTipusAndCodi(
+		Estat estat = estatHelper.findEstat(
 				expedient.getTipus(),
-				estatCodi);
+				estatCodi,
+				true);
 		if (estat == null)
 			throw new NoTrobatException(Estat.class, estatCodi);
 		expedientHelper.update(
@@ -1625,9 +1628,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
 		return conversioTipusHelper.convertir(
-				estatRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						estatCodi),
+				estatHelper.findEstat(
+						expedientTipus, 
+						estatCodi, 
+						true),
 				EstatDto.class);
 	}
 

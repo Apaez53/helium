@@ -839,7 +839,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (command.getEstats().contains(estatExportat.getCodi())){
 					estat = null;
 					if (expedientTipusExisteix) {
-						estat = estatRepository.findByExpedientTipusAndCodi(expedientTipus, estatExportat.getCodi());
+						estat = estatRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), estatExportat.getCodi());
 					}
 					if (estat == null || sobreEscriure) {
 						if (estat == null) {
@@ -1934,13 +1934,61 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<EstatDto> estatFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+	public List<EstatDto> estatFindAll(Long expedientTipusId,
+			boolean ambHerencia ) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
 				expedientTipusId);
-		return conversioTipusHelper.convertirList(
-				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus), 
-				EstatDto.class);
+		if (expedientTipus == null)
+			throw new NoTrobatException(
+					ExpedientTipus.class, 
+					expedientTipusId);
+		
+		// Determina si hi ha herència 
+		boolean herencia = ambHerencia && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null; 
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		Set<String> codisHeretats = new HashSet<String>();
+		Set<Long> sobreescritsIds = new HashSet<Long>();
+		if (herencia) {
+			codisHeretats.addAll( estatRepository.findCodis(expedientTipus.getExpedientTipusPare().getId()));
+			sobreescritsCodis.addAll( estatRepository.findCodis(expedientTipusId));
+			sobreescritsCodis.retainAll(codisHeretats);
+			if (!sobreescritsCodis.isEmpty())
+				sobreescritsIds.addAll(estatRepository.getIds(expedientTipus.getExpedientTipusPare().getId(), sobreescritsCodis));
+		}
+		if (sobreescritsIds.isEmpty())
+			sobreescritsIds.add(0L);
+		
+		// Consulta els estats
+		List<EstatDto> estats = conversioTipusHelper.convertirList(
+				estatRepository.findAll(
+						expedientTipusId,
+						herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
+						sobreescritsIds),
+				EstatDto.class);		
+
+		// Completa les propietats dels dto's
+		if(herencia) {
+			List<EstatDto> estatsPare = new ArrayList<EstatDto>();
+			List<EstatDto> estatsFill = new ArrayList<EstatDto>();
+			for (EstatDto dto: estats) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (codisHeretats.contains(dto.getCodi()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);			
+				if (dto.isHeretat())
+					estatsPare.add(dto);
+				else
+					estatsFill.add(dto);
+			}
+			// Reordena els estats primer del pare i després del fill
+			estats = estatsPare;
+			estats.addAll(estatsFill);
+		}
+
+		return estats;		
 	}
 
 	@Override
@@ -1965,7 +2013,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
 				dto.setHeretat(true);
 			else
-				dto.setSobreescriu(estatRepository.findByExpedientTipusAndCodi(tipus.getExpedientTipusPare(), estat.getCodi()) != null);					
+				dto.setSobreescriu(estatRepository.findByExpedientTipusIdAndCodi(tipus.getExpedientTipusPare().getId(), estat.getCodi()) != null);					
 		}
 		return dto;
 	}
@@ -1987,11 +2035,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			dto = conversioTipusHelper.convertir(
 					estat, 
 					EstatDto.class);
-			dto.setHeretat(!expedientTipusId.equals(estat.getExpedientTipus().getId()));
-			if (estat.getExpedientTipus().getExpedientTipusPare() != null)
-				dto.setSobreescriu(null != estatRepository.findByExpedientTipusIdAndCodi(
-															estat.getExpedientTipus().getExpedientTipusPare().getId(), 
-															codi));
 		}
 		return dto;
 	}

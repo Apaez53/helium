@@ -613,17 +613,21 @@ public interface ExpedientTipusService {
 	/***********************************************/
 
 	/**
-	 * Retorna els estats per a un tipus d'expedient sense tenir en compte l'herència.
+	 * Retorna els estats per a un tipus d'expedient.
 	 * 
 	 * @param expedientTipusId
+	 * @param ambHerencia Indica si incloure els estats heretats per l'expedient tipus.
 	 * @return
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
-	public List<EstatDto> estatFindAll(Long expedientTipusId) throws PermisDenegatException;
+	public List<EstatDto> estatFindAll(
+			Long expedientTipusId,
+			boolean ambHerencia) throws PermisDenegatException;
 	
 	/** 
-	 * Retorna el estat del tipus d'expedient donat el seu identificador.
+	 * Retorna el estat del tipus d'expedient donat el seu identificador. Té en compte els
+	 * heretats i informa el camps d'herència del dto.
 	 * 
 	 * @param estatId
 	 * @param id 
@@ -634,7 +638,12 @@ public interface ExpedientTipusService {
 	 */
 	public EstatDto estatFindAmbId( Long expedientTipusId, Long estatId);
 
-	
+	/**
+	 * Mètode per recuperar l'estat d'un tipus d'expedient per codi. No té en compte la herència.
+	 * @param expedientTipusId
+	 * @param codi
+	 * @return
+	 */
 	public EstatDto estatFindAmbCodi(Long expedientTipusId, String codi);
 	
 	/**

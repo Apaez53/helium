@@ -468,7 +468,8 @@ public class ExpedientHelper {
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				Estat estat = estatRepository.findByExpedientTipusAndId(
-						expedient.getTipus(),
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getExpedientTipusPare() != null? expedient.getTipus().getExpedientTipusPare().getId() : null,
 						estatId);
 				if (estat == null)
 					throw new NoTrobatException(Estat.class, estatId);

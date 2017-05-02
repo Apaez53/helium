@@ -8,15 +8,16 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
  * Controlador base per al llistat d'expedients.
@@ -27,6 +28,8 @@ public class BaseExpedientController extends BaseController {
 
 	@Autowired
 	protected ExpedientService expedientService;
+	@Autowired
+	protected ExpedientTipusService expedientTipusService;
 	@Autowired
 	protected DissenyService dissenyService;
 

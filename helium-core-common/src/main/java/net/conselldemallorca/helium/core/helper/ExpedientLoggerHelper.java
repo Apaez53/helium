@@ -212,7 +212,7 @@ public class ExpedientLoggerHelper {
 										lobj.setValorInicial(null);
 									} else {
 										Long estatId = Long.parseLong(info);
-										lobj.setValorInicial(estatRepository.findById(estatId));
+										lobj.setValorInicial(estatRepository.findOne(estatId));
 									}
 									break;
 								case GEOPOSICIOX:

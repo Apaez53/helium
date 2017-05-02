@@ -601,7 +601,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndId(
+					expedientTipus.getId(), 
+					expedientTipus.getExpedientTipusPare() != null? expedientTipus.getExpedientTipusPare().getId() : null,
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class,estatId);
@@ -720,7 +723,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndId(
+					expedientTipus.getId(), 
+					expedientTipus.getExpedientTipusPare() != null? expedientTipus.getExpedientTipusPare().getId() : null,
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class, estatId);

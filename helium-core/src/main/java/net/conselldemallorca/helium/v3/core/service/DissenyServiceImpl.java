@@ -64,7 +64,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -165,20 +164,6 @@ public class DissenyServiceImpl implements DissenyService {
 				AreaDto.class);
 	}
 
-	@Transactional(readOnly=true)
-	@Override
-	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId){
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
-				expedientTipusId);
-		if (expedientTipus == null)
-			throw new NoTrobatException(
-					ExpedientTipus.class, 
-					expedientTipusId);
-		return conversioTipusHelper.convertirList(
-				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus),
-				EstatDto.class);
-	}
-	
 	@Transactional(readOnly=true)
 	@Override
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
