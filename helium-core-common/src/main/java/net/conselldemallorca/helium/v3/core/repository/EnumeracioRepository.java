@@ -31,6 +31,11 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			ExpedientTipus expedientTipus,
 			String codi);
 
+	/** Consulta per expedient tipus id i el codi. No té en compte l'herència. */
+	Enumeracio findByExpedientTipusAndCodi(
+			ExpedientTipus expedientTipus, 
+			String codi);
+
 	Enumeracio findByEntornAndCodi(
 			Entorn entorn,
 			String codi);
@@ -81,8 +86,6 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
 	
-	public Enumeracio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
-
 	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/
 	@Query(	"from Enumeracio e " +
 			"where " +
