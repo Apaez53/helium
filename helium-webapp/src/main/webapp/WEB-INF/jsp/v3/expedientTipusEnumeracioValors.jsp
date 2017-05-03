@@ -43,6 +43,7 @@
 	</div>
 	
 	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioValorCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
+		<h1>heretat: ${heretat}</h1>
 		<div class="inlineLabels">        
 			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusEnumeracioValorCommand.id}"/>
 			<c:if test="${permisDisseny}">
@@ -95,8 +96,7 @@
 			</button>
 		</div>
 	</form:form>
-	
-	<c:if test="${permisDisseny}">
+	<c:if test="${permisDisseny and not heretat}">
 		<div class="botons-titol text-right">
 			<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
 			<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></button>
@@ -119,16 +119,18 @@
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.enumeracio.valors.llistat.columna.ordre"/></th>
 					<th data-col-name="id" data-template="#cellEnumValTemplate" data-orderable="false" width="10%">
 						<script id="cellEnumValTemplate" type="text/x-jsrender">
-						<div class="dropdown">
-							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-							<ul class="dropdown-menu">
-								<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<c:if test="${permisDisseny}">
-									<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
-								</c:if>
-							</ul>
-						</div>
-					</script>
+						<c:if test="${!heretat}">
+							<div class="dropdown">
+								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<c:if test="${permisDisseny}">
+										<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									</c:if>
+								</ul>
+							</div>
+						</c:if>
+						</script>
 					</th>
 				</tr>
 			</thead>
@@ -169,6 +171,7 @@
 		
 		// Quan es repinta la taula aplica la reordenació
 		$('#campValidacio').on('draw.dt', function() {
+			/* <c:if test="${!heretat}"> */
 			// Posa la taula com a ordenable
 			$("#campValidacio").tableDnD({
 		    	onDragClass: "drag",
@@ -185,6 +188,7 @@
 		    			filaMovem = row.rowIndex-1;
 				}
 		    });
+			/* </c:if> */
 		    $("#campValidacio tr").hover(function() {
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {

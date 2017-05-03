@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -81,30 +83,64 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				"incloureGlobals=" + incloureGlobals + ", " +
 				"filtre=" + filtre + ")");
 		
-		Page<Enumeracio> resultats = enumeracioRepository.findByFiltrePaginat(
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		Set<Long> sobreescritsIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia)
+			for (Enumeracio e : enumeracioRepository.findSobreescrits(
+					expedientTipus.getId()
+				)) {
+				sobreescritsIds.add(e.getId());
+				sobreescritsCodis.add(e.getCodi());
+			}
+		if (sobreescritsIds.isEmpty())
+			sobreescritsIds.add(0L);
+
+		Page<Enumeracio> page = enumeracioRepository.findByFiltrePaginat(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId,
+				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				incloureGlobals,
 				filtre == null || "".equals(filtre),
 				filtre,
+				sobreescritsIds,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
-		
-		PaginaDto<EnumeracioDto> out = paginacioHelper.toPaginaDto(resultats, EnumeracioDto.class);
+
+		// Extreu la llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		if (herencia)
+				for (Enumeracio e : page.getContent())
+					if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
+						heretatsIds.add(e.getId());
+
+		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
 		
 		//Recuperam el nombre de valors per cada enumerat
-		if (out!=null) {
-			for (int o=0; o<out.getContingut().size(); o++) {
-				List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(out.getContingut().get(o).getId());
+		if (pagina!=null) {
+			for (EnumeracioDto dto : pagina.getContingut()) {
+				// Compta els valors
+				//TODO: crear un mètode per fer count en vase a uns ids d'entrada per fer-ho en una sola consulta
+				List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(dto.getId());
 				if (valors!=null) {
-					out.getContingut().get(o).setNumValors(valors.size());
+					dto.setNumValors(valors.size());
 				}else{
-					out.getContingut().get(o).setNumValors(new Integer(0));
+					dto.setNumValors(new Integer(0));
+				}
+				if(herencia) {
+					// Sobreescriu
+					if (sobreescritsCodis.contains(dto.getCodi()))
+						dto.setSobreescriu(true);
+					// Heretat
+					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+						dto.setHeretat(true);								
 				}
 			}
 		}
-		
-		return out;
+		return pagina;
 	}
 	
 	@Override
@@ -213,17 +249,33 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	
 	@Override
 	@Transactional
-	public EnumeracioDto findAmbId(Long enumeracioId) throws NoTrobatException {
+	public EnumeracioDto findAmbId(
+			Long expedientTipusId,
+			Long enumeracioId) throws NoTrobatException {
 		logger.debug(
 				"Consultant l'enumeracio amb id (" +
+				"expedientTipusId=" + expedientTipusId + "," +		
 				"enumeracioId=" + enumeracioId +  ")");
+		ExpedientTipus tipus = expedientTipusId != null?
+									expedientTipusRepository.findById(expedientTipusId) : null;
 		Enumeracio enumeracio = enumeracioRepository.findOne(enumeracioId);
 		if (enumeracio == null) {
 			throw new NoTrobatException(Enumeracio.class, enumeracioId);
 		}
-		return conversioTipusHelper.convertir(
+		EnumeracioDto dto = conversioTipusHelper.convertir(
 				enumeracio,
 				EnumeracioDto.class);
+		// Herencia
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(enumeracio.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+						tipus.getEntorn(),
+						tipus.getExpedientTipusPare(), 
+						enumeracio.getCodi()) != null);					
+		}
+		return dto;
 	}
 	
 	@Override

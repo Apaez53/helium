@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
+	/** Consulta per entorn, expedient tipus id i el codi. No té en compte l'herència. */
 	Enumeracio findByEntornAndExpedientTipusAndCodi(
 			Entorn entorn,
 			ExpedientTipus expedientTipus,
@@ -62,16 +64,21 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
 	@Query(	"from Enumeracio e " +
 			"where " +
-			"   e.entorn.id = :entornId " +
-			"	and ((e.expedientTipus.id = :expedientTipusId) or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
+			"	e.id not in (:exclude) " +
+			"   and e.entorn.id = :entornId " +
+			"	and ((e.expedientTipus.id = :expedientTipusId) " +
+			"			or (e.expedientTipus.id = :expedientTipusPareId) " + 
+			"			or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Enumeracio> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
 	
 	public Enumeracio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
@@ -85,4 +92,13 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 			"	nom")
 	List<Enumeracio> findAmbExpedientTipusIGlobals(
 			@Param("expedientTipusId") Long expedientTipusId);
+
+	@Query( "select es " +
+			"from Enumeracio e " +
+			"	join e.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Enumeracio es " +
+			"where " +
+			"	es.codi = e.codi " +
+			" 	and es.expedientTipus.id = et.expedientTipusPare.id ")
+	List<Enumeracio> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
 }

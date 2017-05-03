@@ -626,13 +626,13 @@ public interface ExpedientTipusService {
 			boolean ambHerencia) throws PermisDenegatException;
 	
 	/** 
-	 * Retorna el estat del tipus d'expedient donat el seu identificador. Té en compte els
+	 * Retorna l'estat del tipus d'expedient donat el seu identificador. Té en compte els
 	 * heretats i informa el camps d'herència del dto.
 	 * 
 	 * @param estatId
 	 * @param id 
 	 * 
-	 * @return El estat del tipus d'expedient.
+	 * @return L'estat del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
