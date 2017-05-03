@@ -50,8 +50,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
 	Page<Camp> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("totes") boolean totes,
 			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,		
 			@Param("esNullFiltre") boolean esNullFiltre,

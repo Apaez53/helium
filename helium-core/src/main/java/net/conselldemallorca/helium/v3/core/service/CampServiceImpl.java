@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -28,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -76,6 +78,8 @@ public class CampServiceImpl implements CampService {
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
 
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -332,17 +336,18 @@ public class CampServiceImpl implements CampService {
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
 		
-		List<Camp> sobreescrits = new ArrayList<Camp>();
-		if (expedientTipusId != null){
-			// Consulta els camps sobreescrits
-			sobreescrits.addAll(campRepository.findSobrescrits(expedientTipusId));
-		}
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
 		// Posa en conjunts hash els ids i codis dels camps sobreescrits
 		Set<Long> sobreescritsIds = new HashSet<Long>();
 		Set<String> sobreescritsCodis = new HashSet<String>();
-		for (Camp c : sobreescrits) {
-			sobreescritsIds.add(c.getId());
-			sobreescritsCodis.add(c.getCodi());
+		if (herencia) {
+			for (Camp c : campRepository.findSobrescrits(expedientTipusId)) {
+				sobreescritsIds.add(c.getId());
+				sobreescritsCodis.add(c.getCodi());
+			}
 		}
 		if (sobreescritsIds.isEmpty())
 			sobreescritsIds.add(0L);						
@@ -350,8 +355,8 @@ public class CampServiceImpl implements CampService {
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
-						totes,
 						definicioProcesId,
+						totes,
 						agrupacioId == null,
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
@@ -396,16 +401,16 @@ public class CampServiceImpl implements CampService {
 					}
 				}
 			}
-			// Sobreescriu
-			if (sobreescritsCodis.contains(dto.getCodi()))
-				dto.setSobreescriu(true);
-			// Heretat
-			if (expedientTipusId != null && !expedientTipusId.equals(dto.getExpedientTipus().getId()))
-				dto.setHeretat(true);			
+			if (herencia) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (!expedientTipusId.equals(dto.getExpedientTipus().getId()))
+					dto.setHeretat(true);
+			}
 		}		
-		
 		return pagina;		
-		
 	}
 	
 	@Override

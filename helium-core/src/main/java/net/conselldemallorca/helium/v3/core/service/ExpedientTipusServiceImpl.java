@@ -2124,18 +2124,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		boolean herencia = expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
 		Set<Long> sobreescritsIds = new HashSet<Long>();
 		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
+		if (herencia)
 			for (Estat e : estatRepository.findSobreescrits(
 					expedientTipus.getId()
 				)) {
 				sobreescritsIds.add(e.getId());
 				sobreescritsCodis.add(e.getCodi());
 			}
-		}		
 		if (sobreescritsIds.isEmpty())
 			sobreescritsIds.add(0L);
 		
-		Page<Estat> estatPage = estatRepository.findByFiltrePaginat(
+		Page<Estat> page = estatRepository.findByFiltrePaginat(
 				expedientTipusId,
 				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				filtre == null || "".equals(filtre), 
@@ -2147,12 +2146,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Extreu la llista d'heretats
 		Set<Long> heretatsIds = new HashSet<Long>();
 		if (herencia)
-				for (Estat e : estatPage.getContent())
+				for (Estat e : page.getContent())
 					if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
 						heretatsIds.add(e.getId());
 
 		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
-				estatPage,
+				page,
 				EstatDto.class);		
 		
 		// Completa les propietats dels dto's
