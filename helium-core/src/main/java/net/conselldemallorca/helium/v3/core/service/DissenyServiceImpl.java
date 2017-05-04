@@ -665,9 +665,9 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Document> documents;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
 		} else if (definicioProces != null) {
-			documents = documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		} else 
 			documents = new ArrayList<Document>();
 		return conversioTipusHelper.convertirList(documents, DocumentDto.class);
@@ -697,7 +697,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) {
-		List<Document> documents = documentRepository.findAmbDefinicioProces(definicioProcesId);
+		List<Document> documents = documentRepository.findByDefinicioProcesId(definicioProcesId);
 		return conversioTipusHelper.convertirList(
 				documents,
 				DocumentDto.class);
@@ -1001,7 +1001,7 @@ public class DissenyServiceImpl implements DissenyService {
  		if (definicioProces == null)
  			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
  		
- 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), DocumentDto.class);
+ 		return conversioTipusHelper.convertirList(documentRepository.findByDefinicioProcesId(definicioProces.getId()), DocumentDto.class);
  	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

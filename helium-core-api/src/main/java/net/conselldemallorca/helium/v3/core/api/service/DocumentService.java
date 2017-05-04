@@ -65,6 +65,7 @@ public interface DocumentService {
 			Long documentId) throws NoTrobatException, PermisDenegatException;
 	
 	public DocumentDto findAmbId(
+			Long expedientTipusId,
 			Long documentId) throws NoTrobatException;
 	
 	public DocumentDto update(

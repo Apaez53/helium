@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,28 +25,35 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
-	List<Document> findByExpedientTipus(ExpedientTipus expedientTipus);
-	List<Document> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
-	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    d.definicioProces.id = :definicioProcesId " +
+			"order by codi asc")
+	List<Document> findByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
+
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    d.expedientTipus.id = :expedientTipusId " +
+			"order by codi asc")
+	List<Document> findByExpedientTipusId(@Param("expedientTipusId") Long expedientTipusId);
+
+	
+	@Query(	"select d from " +
+			"    Document d " +
+			"		inner join d.expedientTipus et with et.ambInfoPropia " +
+			"		left  join et.expedientTipusPare etp " +
+			"where " +
+			"    d.expedientTipus.id = :expedientTipusId " +
+			"    d.expedientTipus.id = etp.id " +
+			"order by codi asc")
+	List<Document> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipus);
 	
 	Document findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
+	
 	Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 	
-	@Query(	"select d from " +
-			"    Document d " +
-			"where " +
-			"    d.definicioProces.id=:id " +
-			"order by codi asc")
-	List<Document> findAmbDefinicioProces(@Param("id") Long id);
-
-	@Query(	"select d from " +
-			"    Document d " +
-			"where " +
-			"    d.definicioProces.id=:definicioProcesId " +
-			"and d.codi=:codi")
-	Document findAmbDefinicioProcesICodi(@Param("definicioProcesId") Long definicioProcesId, @Param("codi") String codi);
-
 	@Query(	"select " +
 			"    dt.document, " +
 			"    dt.required, " +
@@ -65,27 +73,25 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query(	"from Document d " +
 			"where " +
-			"   (d.expedientTipus.id = :expedientTipusId or d.expedientTipus.id is null) " +
+			"	d.id not in (:exclude) " +
+			"   and (d.expedientTipus.id = :expedientTipusId or d.expedientTipus.id = :expedientTipusPareId or d.expedientTipus.id is null) " +
 			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Document> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
-	
-	@Query(	"select d from " +
-			"    Document d " +
+			
+	@Query( "select ds " +
+			"from Document d " +
+			"	join d.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Document ds " +
 			"where " +
-			"    d.expedientTipus.id=:expedientTipusId " +
-			"order by codi asc")
-	public List<Document> findByExpedientTipusIdOrderByCodiAsc(@Param("expedientTipusId") Long expedientTipusId);
-	
-	@Query(	"select d from " +
-			"    Document d " +
-			"where " +
-			"    d.definicioProces.id=:definicioProcesId " +
-			"order by codi asc")
-	public List<Document> findByDefinicioProcesIdOrderByCodiAsc(@Param("definicioProcesId") Long definicioProcesId);
+			"	ds.codi = d.codi " +
+			" 	and ds.expedientTipus.id = et.expedientTipusPare.id ")
+	public List<Document> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
 }

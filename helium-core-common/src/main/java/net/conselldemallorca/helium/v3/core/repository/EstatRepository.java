@@ -72,7 +72,7 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			"  	and (e.expedientTipus.id = :expedientTipusId " +
 			"			or e.expedientTipus.id = :expedientTipusPareId) " +
 			"order by e.ordre asc")
-	public List<Estat> findAll(
+	public List<Estat> findAllAmbHerencia(
 			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("expedientTipusPareId") Long expedientTipusPareId, 
 			@Param("exclude") Set<Long> exclude);	

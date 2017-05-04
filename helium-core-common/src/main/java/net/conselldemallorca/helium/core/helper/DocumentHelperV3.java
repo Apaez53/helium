@@ -273,9 +273,9 @@ public class DocumentHelperV3 {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		List<Document> documents;
 		if (expedientTipus.isAmbInfoPropia())
-			documents = documentRepository.findByExpedientTipus(expedientTipus);
+			documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
 		else
-			documents = documentRepository.findByDefinicioProces(definicioProces);
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 			
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);

@@ -70,7 +70,6 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			"    t.expedientTipus.id=:expedientTipusId " +
 			"order by " +
 			"    codi")
-	
 	List<Termini> findAmbExpedientTipus(
 			@Param("expedientTipusId") Long expedientTipusId);
 

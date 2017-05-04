@@ -1960,7 +1960,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (sobreescritsIds.isEmpty())
 			sobreescritsIds.add(0L);
 		
-		List<Estat> estats = estatRepository.findAll(
+		List<Estat> estats = estatRepository.findAllAmbHerencia(
 				expedientTipusId,
 				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				sobreescritsIds);
