@@ -578,7 +578,7 @@ public class DefinicioProcesHelper {
 				}
 		if (domini == null) {
 			// cerca a l'entorn
-			domini = dominiRepository.findByEntornAndCodi(entorn, codiDomini);	
+			domini = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(entorn, codiDomini);	
 		}
 		if (domini != null)
 			camp.setDomini(domini);

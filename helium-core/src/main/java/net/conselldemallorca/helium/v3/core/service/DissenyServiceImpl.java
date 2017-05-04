@@ -903,7 +903,7 @@ public class DissenyServiceImpl implements DissenyService {
 				"entornId=" + entornId + ", " +
 				"codi = " + codi + ")");
 		Entorn entorn = entornRepository.findOne(entornId);
-		Domini domini = dominiRepository.findByEntornAndCodi(entorn, codi);
+		Domini domini = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(entorn, codi);
 		if (domini != null)
 			ret = conversioTipusHelper.convertir(
 					domini,

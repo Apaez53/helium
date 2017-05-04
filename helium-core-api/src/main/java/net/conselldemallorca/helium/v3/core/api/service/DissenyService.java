@@ -266,6 +266,7 @@ public interface DissenyService {
 			Long expedientTipusId,
 			Long jbpmId) throws NoTrobatException, PermisDenegatException;
 
+	/** Cerca el domini global dins l'entorn. Retorna null si no hi és. */
 	public DominiDto dominiFindAmbCodi(
 			Long entornId, 
 			String codiDomini);

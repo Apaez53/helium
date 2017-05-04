@@ -110,7 +110,6 @@ import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -157,9 +156,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private CampRepository campRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
-
 	
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
@@ -909,7 +905,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"dominiId=" + dominiId + ", " +
 				"parametres=" + parametres + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Domini domini = dominiRepository.findByEntornAndCodi(
+		Domini domini;
+		// Dominis del tipus d'expedient
+		domini = dominiRepository.findByExpedientTipusAndCodi(
+				expedient.getTipus(), 
+				dominiCodi);
+		if (domini == null)
+			// Dominis globals de l'entorn
+			domini = dominiRepository.findByEntornAndCodiAndExpedientTipusNull(
 				expedient.getEntorn(),
 				dominiCodi);
 		if (domini == null)

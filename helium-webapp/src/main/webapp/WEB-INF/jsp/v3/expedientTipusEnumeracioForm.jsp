@@ -45,6 +45,7 @@
 <body>		
 
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioCommand">
+
 		<div>
 			<input type="hidden" name="id" value="${expedientTipusEnumeracioCommand.id}"/>
 			<hel:inputText 		required="true" name="codi"		textKey="expedient.tipus.enumeracio.form.camp.codi" />

@@ -3,12 +3,15 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -125,17 +129,31 @@ public class TerminiServiceImpl implements TerminiService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public TerminiDto findAmbId(Long terminiId) {
+	public TerminiDto findAmbId(
+			Long expedientTipusId, 
+			Long terminiId) throws NoTrobatException {
 		logger.debug(
 				"Consultant el termini amb id (" +
+				"expedientTiusId=" + expedientTipusId + "," +
 				"terminiId=" + terminiId +  ")");
 		Termini termini = terminiRepository.findOne(terminiId);
 		if (termini == null) {
 			throw new NoTrobatException(Termini.class, terminiId);
 		}
-		return conversioTipusHelper.convertir(
-				termini, 
+		TerminiDto dto = conversioTipusHelper.convertir(
+				termini,
 				TerminiDto.class);
+		// Herencia
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(termini.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(terminiRepository.findByExpedientTipusAndCodi(
+						tipus.getExpedientTipusPare(), 
+						termini.getCodi()) != null);					
+		}
+		return dto;
 	}
 	
 	/**
@@ -281,16 +299,50 @@ public class TerminiServiceImpl implements TerminiService {
 				"definicioProcesId =" + definicioProcesId + ", " +
 				"filtre=" + filtre + ")");
 						
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+		Set<Long> sobreescritsIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia)
+			for (Termini t : terminiRepository.findSobreescrits(expedientTipus.getId())) 
+			{
+				sobreescritsIds.add(t.getId());
+				sobreescritsCodis.add(t.getCodi());
+			}
+		if (sobreescritsIds.isEmpty())
+			sobreescritsIds.add(0L);
+		
+		Page<Termini> page = terminiRepository.findByFiltrePaginat(
+				expedientTipusId,
+				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
+				definicioProcesId,
+				filtre == null || "".equals(filtre), 
+				filtre, 
+				sobreescritsIds,
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams)); 
 		
 		PaginaDto<TerminiDto> pagina = paginacioHelper.toPaginaDto(
-				terminiRepository.findByFiltrePaginat(
-						expedientTipusId,
-						definicioProcesId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				TerminiDto.class);		
+				page,
+				TerminiDto.class);
+		
+		// Extreu la llista d'heretats
+		if (herencia) {
+				Set<Long> heretatsIds = new HashSet<Long>();
+				for (Termini t : page.getContent())
+					if ( !expedientTipusId.equals(t.getExpedientTipus().getId()))
+						heretatsIds.add(t.getId());
+				for (TerminiDto dto : pagina.getContingut()) {
+					// Sobreescriu
+					if (sobreescritsCodis.contains(dto.getCodi()))
+						dto.setSobreescriu(true);
+					// Heretat
+					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+						dto.setHeretat(true);								
+				}
+		}
 		return pagina;		
 	}
 		

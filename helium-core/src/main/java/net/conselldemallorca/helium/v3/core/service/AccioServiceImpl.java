@@ -49,7 +49,6 @@ import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -93,8 +92,6 @@ public class AccioServiceImpl implements AccioService {
 	private AccioRepository accioRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
 	@Resource
 	private EstatRepository estatRepository;
 	@Resource

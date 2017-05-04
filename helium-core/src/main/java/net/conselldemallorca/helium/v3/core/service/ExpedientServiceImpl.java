@@ -131,7 +131,6 @@ import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 
 /**
@@ -164,8 +163,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private RegistreRepository registreRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource

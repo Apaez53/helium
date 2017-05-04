@@ -3,8 +3,10 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -112,24 +114,29 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 
 		// Extreu la llista d'heretats
 		Set<Long> heretatsIds = new HashSet<Long>();
+		Set<Long> enumeracionsIds = new HashSet<Long>(); // per guardar els ids de les enumeracions a mostrar
 		if (herencia)
-				for (Enumeracio e : page.getContent())
+				for (Enumeracio e : page.getContent()) 
+				{
 					if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
 						heretatsIds.add(e.getId());
+					enumeracionsIds.add(e.getId());
+				}
+		if (enumeracionsIds.isEmpty())
+			enumeracionsIds.add(0L);
 
 		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
 		
 		//Recuperam el nombre de valors per cada enumerat
 		if (pagina!=null) {
+			// Consulta els valors per enumeració dins d'un Map<enumeracioId, valors count>
+			Map<Long, Long> enumeracioValorsCountMap = new HashMap<Long, Long>();
+			for(Object[] o : enumeracioValorsRepository.countValors(enumeracionsIds))
+				enumeracioValorsCountMap.put((Long) o[0], (Long) o[1]);
+			// Acaba d'omplir el contingut del DTO
 			for (EnumeracioDto dto : pagina.getContingut()) {
 				// Compta els valors
-				//TODO: crear un mètode per fer count en vase a uns ids d'entrada per fer-ho en una sola consulta
-				List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(dto.getId());
-				if (valors!=null) {
-					dto.setNumValors(valors.size());
-				}else{
-					dto.setNumValors(new Integer(0));
-				}
+				dto.setNumValors(enumeracioValorsCountMap.get(dto.getId()).intValue());
 				if(herencia) {
 					// Sobreescriu
 					if (sobreescritsCodis.contains(dto.getCodi()))
@@ -138,7 +145,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
 						dto.setHeretat(true);								
 				}
-			}
+			}			
 		}
 		return pagina;
 	}
@@ -254,7 +261,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			Long enumeracioId) throws NoTrobatException {
 		logger.debug(
 				"Consultant l'enumeracio amb id (" +
-				"expedientTipusId=" + expedientTipusId + "," +		
+				"expedientTipusId=" + expedientTipusId + "," +
 				"enumeracioId=" + enumeracioId +  ")");
 		ExpedientTipus tipus = expedientTipusId != null?
 									expedientTipusRepository.findById(expedientTipusId) : null;

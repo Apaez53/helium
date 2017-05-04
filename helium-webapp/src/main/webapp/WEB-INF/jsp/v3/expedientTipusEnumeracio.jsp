@@ -32,17 +32,16 @@
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="numValors" data-visible="false"/>
-					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.enumeracio.llistat.columna.codi"/></th>
 					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusEnumeracioCodiTemplate">
 					<spring:message code="expedient.tipus.enumeracio.llistat.columna.codi"/>
 						<script id="cellExpedientTipusEnumeracioCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
 									<span class="dada-heretada">{{:codi}}</span> 
-									<span class="label label-primary" title="<spring:message code="expedient.tipus.estat.llistat.codi.heretat"/>">R</span>
+									<span class="label label-primary" title="<spring:message code="expedient.tipus.enumeracio.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
 									{{if sobreescriu }}
-										<span class="label label-warning" title="<spring:message code="expedient.tipus.estat.llistat.codi.sobreescriu"/>">S</span>
+										<span class="label label-warning" title="<spring:message code="expedient.tipus.enumeracio.llistat.codi.sobreescriu"/>">S</span>
 									{{/if}}
 								{{/if}}
 						</script>
