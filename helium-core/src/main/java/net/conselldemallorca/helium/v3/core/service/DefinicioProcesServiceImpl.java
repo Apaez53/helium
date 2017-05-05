@@ -47,7 +47,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -56,7 +55,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
@@ -73,8 +71,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private DominiRepository dominiRepository;
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
@@ -93,8 +89,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private TerminiRepository terminiRepository;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
-	@Resource
-	private AccioRepository accioRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -226,11 +220,17 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId=" + entornId + ", " +
 				"filtre=" + filtre + ")");
 
+		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
+		
+		// Determina si hi ha herència 
+		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
+
 		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
 				definicioProcesRepository.findByFiltrePaginat(
 						entornId,
 						expedientTipusId == null,
 						expedientTipusId,
+						herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 						incloureGlobals,
 						filtre == null || "".equals(filtre), 
 						filtre, 
@@ -262,6 +262,12 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				}
 				countVersions.removeAll(processats);
 				processats.clear();
+
+				// Herencia				
+				if (herencia 
+						&& definicio.getExpedientTipus() != null
+						&& !expedientTipusId.equals(definicio.getExpedientTipus().getId()))
+					definicio.setHeretat(true);
 			}		
 		}
 		return pagina;

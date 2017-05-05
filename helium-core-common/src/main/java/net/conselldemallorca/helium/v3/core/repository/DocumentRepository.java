@@ -40,13 +40,18 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	List<Document> findByExpedientTipusId(@Param("expedientTipusId") Long expedientTipusId);
 
 	
+//	@Query(	"select d from " +
+//			"    Document d " +
+//			"		join d.expedientTipus et with et.ambInfoPropia = true" +
+//			"		join et.expedientTipusPare etp " +
+//			"where " +
+//			"    d.expedientTipus.id = :expedientTipusId " +
+//			"    or d.expedientTipus.id = etp.id " +
+//			"order by codi asc")
 	@Query(	"select d from " +
 			"    Document d " +
-			"		inner join d.expedientTipus et with et.ambInfoPropia " +
-			"		left  join et.expedientTipusPare etp " +
 			"where " +
 			"    d.expedientTipus.id = :expedientTipusId " +
-			"    d.expedientTipus.id = etp.id " +
 			"order by codi asc")
 	List<Document> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipus);
 	

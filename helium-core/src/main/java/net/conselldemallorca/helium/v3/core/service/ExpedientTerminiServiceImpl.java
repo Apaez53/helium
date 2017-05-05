@@ -3,9 +3,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -70,6 +69,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private TerminiHelper terminiHelper;
 
 
 
@@ -304,17 +305,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				processInstanceId);
 		List<Termini> terminis = null;
 		if (expedient.getTipus().isAmbInfoPropia()) {
-			// Construeix la llista d'exclosos
-			Set<Long> terminisSobreescritsIds = new HashSet<Long>();
-			for (Termini t : terminiRepository.findSobreescrits(expedient.getTipus().getId()))
-				terminisSobreescritsIds.add(t.getId());
-			if (terminisSobreescritsIds.isEmpty())
-				terminisSobreescritsIds.add(0L);
-			// Obté els terminis del tipus d'expedient i els heretats
-			terminis = terminiRepository.findByExpedientTipusAmbHerencia(
-					expedient.getTipus().getId(),
-					expedient.getTipus().getExpedientTipusPare() != null? expedient.getTipus().getExpedientTipusPare().getId() : null,
-					terminisSobreescritsIds);			
+			terminis = terminiHelper.findByExpedientTipusAmbHerencia(expedient.getTipus());			
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);

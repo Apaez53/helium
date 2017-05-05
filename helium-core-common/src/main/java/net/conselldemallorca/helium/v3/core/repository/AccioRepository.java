@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,14 +37,17 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	
 	@Query(	"from Accio a " +
 			"where " +
-			"   (a.expedientTipus.id = :expedientTipusId or a.expedientTipus.id is null) " +
+			"	a.id not in (:exclude) " +
+			"   and (a.expedientTipus.id = :expedientTipusId or a.expedientTipus.id = :expedientTipusPareId or a.expedientTipus.id is null) " +
 			"   and (a.definicioProces.id = :definicioProcesId or a.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(a.codi) like lower('%'||:filtre||'%') or lower(a.nom) like lower('%'||:filtre||'%')) ")
 	Page<Accio> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
+			@Param("exclude") Set<Long> exclude, 
 			Pageable pageable);
 
 	@Query("select a "
@@ -61,4 +65,14 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	public Accio findByCodiAndDefinicioProces(
 			String codi,
 			DefinicioProces definicioProces);
+
+	@Query( "select acs " +
+			"from Accio ac " +
+			"	join ac.expedientTipus et with et.id = :expedientTipusId, " +
+			"	Accio acs " +
+			"where " +
+			"	acs.codi = ac.codi " +
+			" 	and acs.expedientTipus.id = et.expedientTipusPare.id ")
+	public List<Accio> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
+
 }

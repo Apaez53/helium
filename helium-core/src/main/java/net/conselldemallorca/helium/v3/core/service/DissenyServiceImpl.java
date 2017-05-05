@@ -34,13 +34,11 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -75,7 +73,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
@@ -84,11 +81,8 @@ import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 /**
  * Servei per gestionar les tasques de disseny.
@@ -105,15 +99,9 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private TerminiIniciatRepository terminiIniciatRepository;
-	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -122,8 +110,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private EstatRepository estatRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
@@ -135,8 +121,6 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private CampTascaRepository campTascaRepository;
 	@Resource
-	private AccioRepository accioRepository;
-	@Resource
 	private AreaRepository areaRepository;
 	@Resource
 	private DominiHelper dominiHelper;
@@ -144,8 +128,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private DocumentRepository documentRepository;
-	@Resource
-	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private DominiRepository dominiRepository;
 

@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -383,6 +385,25 @@ public class TerminiHelper {
 					termini,
 					processInstanceId);
 		}
+
+	/** Retorna la llista de terminis del tipus d'expedient incloent els terminis heretats en el
+	 * cas de tenir herència. */
+	public List<Termini> findByExpedientTipusAmbHerencia(ExpedientTipus tipus) {
+
+		boolean herencia = tipus.isAmbInfoPropia() && tipus.getExpedientTipusPare() != null;
+		Set<Long> terminisSobreescritsIds = new HashSet<Long>();
+		if (herencia) 
+			// Consulta els sobreescrits
+			for (Termini t : terminiRepository.findSobreescrits(tipus.getId()))
+				terminisSobreescritsIds.add(t.getId());
+		if (terminisSobreescritsIds.isEmpty())
+			terminisSobreescritsIds.add(0L);
+		// fa la consulta
+		return terminiRepository.findByExpedientTipusAmbHerencia(
+						tipus.getId(),
+						tipus.getExpedientTipusPare().getId(), 
+						terminisSobreescritsIds);
+	}
 
 	private void sumarDies(
 			Calendar cal, 

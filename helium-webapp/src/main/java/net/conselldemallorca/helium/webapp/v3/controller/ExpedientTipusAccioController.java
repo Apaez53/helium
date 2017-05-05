@@ -134,7 +134,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		AccioDto dto = accioService.findAmbId(id);
+		AccioDto dto = accioService.findAmbId(expedientTipusId, id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
@@ -145,6 +145,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 						entornActual.getId(), 
 						expedientTipusId, 
 						true));
+		model.addAttribute("heretat", dto.isHeretat());
+
 		return "v3/expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.POST)
@@ -162,6 +164,9 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     						entornActual.getId(), 
     						expedientTipusId, 
     						true));
+    		model.addAttribute("heretat", accioService.findAmbId(
+    				expedientTipusId, 
+    				id).isHeretat());
         	return "v3/expedientTipusAccioForm";
         } else {
         	accioService.update(
