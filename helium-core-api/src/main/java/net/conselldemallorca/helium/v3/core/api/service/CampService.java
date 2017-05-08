@@ -79,7 +79,7 @@ public interface CampService {
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public CampDto findAmbId(
-			Long id) throws NoTrobatException;	
+			Long expedientTipusId, Long id) throws NoTrobatException;	
 	
 	/** 
 	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.

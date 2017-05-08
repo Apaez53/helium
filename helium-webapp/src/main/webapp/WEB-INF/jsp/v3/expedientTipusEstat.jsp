@@ -48,7 +48,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								{{if heretat}}
-									<li><a data-toggle="modal" data-callback="callbackModalEstats()" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
 									<li><a data-toggle="modal" data-callback="callbackModalEstats()" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
@@ -116,11 +116,11 @@ function canviarPosicioEstat(id, pos) {
 		url: getUrl,
 		async: true,
 		success: function(result) {
-			$('#campValidacio').webutilDatatable('refresh');
+			$('#expedientTipusEstat').webutilDatatable('refresh');
 		},
 		error: function(e) {
 			console.log("Error canviant l'ordre: " + e);
-			$('#campValidacio').webutilDatatable('refresh');
+			$('#expedientTipusEstat').webutilDatatable('refresh');
 		}
 	});	
 }

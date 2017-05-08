@@ -108,18 +108,22 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
-								<li class="divider"></li>
-								<li id="accioAgrupacions">
-									{{if agrupacio == null}}
-										<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
-										<br/>						
-									{{else}}
-										<a href="${baseUrl}/variable/{{:id}}/desagrupar"
+								{{if heretat}}
+									<li><a data-toggle="modal" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+								{{else}}
+									<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li class="divider"></li>
+									<li id="accioAgrupacions">
+										{{if agrupacio == null}}
+											<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
+											<br/>						
+										{{else}}
+											<a href="${baseUrl}/variable/{{:id}}/desagrupar"
 												data-toggle="ajax" ><span class="fa fa-minus"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
-									{{/if}}																		
-								</li>
+										{{/if}}																		
+									</li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>

@@ -120,7 +120,11 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"from " +
 			"   Camp c " +
 			"where " +
-			"   (c.expedientTipus.id = :expedientTipusId or c.expedientTipus.id is null) " +
+			"	(c.expedientTipus.id = :expedientTipusId " + 
+					// Heretats
+			"		or (:herencia = true " +
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
@@ -128,7 +132,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
-			@Param("agrupacioId") Long agrupacioId);
+			@Param("agrupacioId") Long agrupacioId,
+			@Param("herencia") boolean herencia);
 
 	/** Compta el número de registres per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
@@ -137,7 +142,11 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"from " +
 			"   Camp c " +
 			"where " +
-			"   (c.expedientTipus.id = :expedientTipusId or c.expedientTipus.id is null) " +
+			"	(c.expedientTipus.id = :expedientTipusId " + 
+					// Heretats
+			"		or (:herencia = true " +
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"   and c.tipus = net.conselldemallorca.helium.core.model.hibernate.Camp$TipusCamp.REGISTRE " +
 			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
@@ -146,7 +155,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("expedientTipusId") Long expedientTipusId, 
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
-			@Param("agrupacioId") Long agrupacioId);
+			@Param("agrupacioId") Long agrupacioId,
+			@Param("herencia") boolean herencia);
 
 	@Query( "select cs " +
 			"from Camp c " +

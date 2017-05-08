@@ -105,8 +105,8 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto findAmbId(Long id) throws NoTrobatException {
-		return delegate.findAmbId(id);
+	public CampDto findAmbId(Long expedientTipusId, Long id) throws NoTrobatException {
+		return delegate.findAmbId(expedientTipusId, id);
 	}
 
 	@Override

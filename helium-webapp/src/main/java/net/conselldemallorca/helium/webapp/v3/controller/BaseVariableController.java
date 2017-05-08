@@ -49,7 +49,7 @@ public class BaseVariableController extends BaseDissenyController {
 		// Valida que la variable no s'utilitzi en cap registre o consulta
 		boolean valid = true;
 		// Recupera la informació del camp
-		CampDto camp = campService.findAmbId(id);
+		CampDto camp = campService.findAmbId(null, id);
 		// Valida que no pertany a cap tasca
 		List<TascaDto> tasques = campService.findTasquesPerCamp(id);
 		if (tasques.size() > 0) {

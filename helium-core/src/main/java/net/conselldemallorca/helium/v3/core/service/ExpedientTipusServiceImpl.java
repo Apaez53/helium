@@ -1933,10 +1933,24 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			estats = estatRepository.findAllAmbHerencia(expedientTipusId);
 		else
 			estats = estatRepository.findAll(expedientTipusId);				
+		
 		List<EstatDto> dtos = conversioTipusHelper.convertirList(
 				estats,
 				EstatDto.class);		
 
+		if (herencia) {
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Estat e : estats)
+				if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
+					heretatsIds.add(e.getId());
+			// Completa l'informació del dto
+			for (EstatDto dto : dtos) {
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}			
+		}
 		return dtos;		
 	}
 

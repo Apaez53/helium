@@ -210,7 +210,33 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long estatId,
 			@PathVariable int posicio,
 			Model model) {
-		return expedientTipusService.estatMoure(estatId, posicio);
+		boolean ret = false;
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(), 
+				expedientTipusId); 
+		
+		boolean herencia = tipus.getExpedientTipusPareId() != null;
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+		if (estat.isHeretat()) {
+			MissatgesHelper.error(
+			request, 
+			getMessage(
+					request, 
+					"expedient.tipus.estat.controller.moure.heretat.error"));
+		} else {
+			if (herencia) {
+				// rectifica la posició restant tots els heretats que té per davant
+				int nHeretats = 0;
+				for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true))
+					if (e.isHeretat())
+						nHeretats ++;
+				posicio = posicio - nHeretats;
+			}
+			ret = expedientTipusService.estatMoure(estatId, posicio);
+		}
+		return ret;
 	}
 	
 	/** Mètode per obrir un formulari d'importació de dades d'estats. */

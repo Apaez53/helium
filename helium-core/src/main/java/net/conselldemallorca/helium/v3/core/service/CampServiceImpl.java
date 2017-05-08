@@ -272,17 +272,31 @@ public class CampServiceImpl implements CampService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public CampDto findAmbId(Long id) throws NoTrobatException {
+	public CampDto findAmbId(
+			Long expedientTipusId,
+			Long id) throws NoTrobatException {
 		logger.debug(
-				"Consultant el camp del tipus d'expedient amb id (" +
+				"Consultant el camp del tipus d'expedient (" +
+				"expedientTipusId=" + expedientTipusId + "," +		
 				"campId=" + id +  ")");
 		Camp camp = campRepository.findOne(id);
 		if (camp == null) {
 			throw new NoTrobatException(Camp.class, id);
 		}
-		return conversioTipusHelper.convertir(
+		CampDto dto = conversioTipusHelper.convertir(
 				camp,
 				CampDto.class);
+		// Herencia
+		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
+		if (tipus != null && tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(camp.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(campRepository.findByExpedientTipusAndCodi(
+						tipus.getExpedientTipusPare(), 
+						camp.getCodi()) != null);					
+		}
+		return dto;
 	}
 
 	/**
@@ -360,12 +374,16 @@ public class CampServiceImpl implements CampService {
 				expedientTipusId,
 				definicioProcesId,
 				agrupacioId == null,
-				agrupacioId); 
+				agrupacioId,
+				true //herencia 
+				); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
 				agrupacioId == null,
-				agrupacioId); 
+				agrupacioId, 
+				true //herencia
+				); 
 		
 		// Llistat d'elements sobreescrits
 		Set<String> sobreescritsCodis = new HashSet<String>();

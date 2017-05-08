@@ -43,7 +43,6 @@
 	</div>
 	
 	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioValorCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
-		<h1>heretat: ${heretat}</h1>
 		<div class="inlineLabels">        
 			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusEnumeracioValorCommand.id}"/>
 			<c:if test="${permisDisseny}">
