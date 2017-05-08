@@ -123,7 +123,7 @@ public class TerminiServiceImpl implements TerminiService {
 			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
 		List<Termini> terminis;
 		if (expedientTipusId != null)
-			terminis = terminiRepository.findAmbExpedientTipus(expedientTipusId);
+			terminis = terminiRepository.findByExpedientTipus(expedientTipusId);
 		else
 			terminis = terminiRepository.findByDefinicioProcesId(definicioProcesId);
 		return conversioTipusHelper.convertirList(
@@ -228,24 +228,13 @@ public class TerminiServiceImpl implements TerminiService {
 		
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia)
-			for (Termini t : terminiRepository.findSobreescrits(expedientTipus.getId())) 
-			{
-				sobreescritsIds.add(t.getId());
-				sobreescritsCodis.add(t.getCodi());
-			}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 		
 		Page<Termini> page = terminiRepository.findByFiltrePaginat(
 				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				definicioProcesId,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				sobreescritsIds,
+				herencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams)); 
 		
@@ -253,20 +242,27 @@ public class TerminiServiceImpl implements TerminiService {
 				page,
 				TerminiDto.class);
 		
-		// Extreu la llista d'heretats
 		if (herencia) {
-				Set<Long> heretatsIds = new HashSet<Long>();
-				for (Termini t : page.getContent())
-					if ( !expedientTipusId.equals(t.getExpedientTipus().getId()))
-						heretatsIds.add(t.getId());
-				for (TerminiDto dto : pagina.getContingut()) {
-					// Sobreescriu
-					if (sobreescritsCodis.contains(dto.getCodi()))
-						dto.setSobreescriu(true);
-					// Heretat
-					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
-						dto.setHeretat(true);								
-				}
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Termini t : page.getContent())
+				if ( !expedientTipusId.equals(t.getExpedientTipus().getId()))
+					heretatsIds.add(t.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Termini t : terminiRepository.findSobreescrits(expedientTipus.getId())) 
+			{
+				sobreescritsCodis.add(t.getCodi());
+			}
+			// Completa l'informació del dto
+			for (TerminiDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}
 		}
 		return pagina;		
 	}

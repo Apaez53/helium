@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,41 +37,62 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 	@Query(	"select t from " +
 			"    Termini t " +
 			"where " +
-			"	 t.id not in (:exclude) " + 
-			"    and (t.expedientTipus.id = :expedientTipusId " + 
-			"	 		or t.expedientTipus.id = :expedientTipusPareId) " + 
+			"	t.expedientTipus.id = :expedientTipusId " +
 			"order by t.codi asc ")
-	List<Termini> findByExpedientTipusAmbHerencia(
-			@Param("expedientTipusId") Long expedientTipusId, 
-			@Param("expedientTipusPareId") Long expedientTipusPareId, 
-			@Param("exclude") Set<Long> exclude);
+	List<Termini> findByExpedientTipus(@Param("expedientTipusId") Long expedientTipusId);
+	
+	@Query(	"select t from " +
+			"    Termini t " +
+			"where " +
+			"	(t.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ts.id " +
+			"			from Termini ta " +
+			"				join ta.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Termini ts " +
+			"			where " +
+			"				ts.codi = ta.codi " +
+			"			 	and ts.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and (t.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (t.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) )) " +
+			"order by t.codi asc ")
+	List<Termini> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipusId);
 
 	Termini findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 
 	@Query(	"from Termini t " +
 			"where " +
-			"	t.id not in (:exclude) " +
-			"   and (t.expedientTipus.id = :expedientTipusId or t.expedientTipus.id = :expedientTipusPareId or  t.expedientTipus.id is null) " +
+			"	(:herencia = false " +
+			"		or t.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ts.id " +
+			"			from Termini ta " +
+			"				join ta.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Termini ts " +
+			"			where " +
+			"				ts.codi = ta.codi " +
+			"			 	and ts.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and (t.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or (:herencia = true " +
+			"					and t.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"			or  t.expedientTipus.id is null) " +
 			"   and (t.definicioProces.id = :definicioProcesId or t.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(t.codi) like lower('%'||:filtre||'%') or lower(t.nom) like lower('%'||:filtre||'%')) ")
 	Page<Termini> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("exclude") Set<Long> exclude, 
+			@Param("herencia") boolean herencia,
 			Pageable pageable);	
 	
-	@Query("select t from " +
-			"    Termini t " +
-			"where " +
-			"    t.expedientTipus.id=:expedientTipusId " +
-			"order by " +
-			"    codi")
-	List<Termini> findAmbExpedientTipus(
-			@Param("expedientTipusId") Long expedientTipusId);
-
+	/** Recupera la informació de tots els registres sobreescrits.*/
 	@Query( "select ts " +
 			"from Termini t " +
 			"	join t.expedientTipus et with et.id = :expedientTipusId, " +

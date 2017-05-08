@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,18 +39,23 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	List<Document> findByExpedientTipusId(@Param("expedientTipusId") Long expedientTipusId);
 
 	
-//	@Query(	"select d from " +
-//			"    Document d " +
-//			"		join d.expedientTipus et with et.ambInfoPropia = true" +
-//			"		join et.expedientTipusPare etp " +
-//			"where " +
-//			"    d.expedientTipus.id = :expedientTipusId " +
-//			"    or d.expedientTipus.id = etp.id " +
-//			"order by codi asc")
 	@Query(	"select d from " +
 			"    Document d " +
 			"where " +
-			"    d.expedientTipus.id = :expedientTipusId " +
+			"	(d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Document da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Document ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and (d.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or (d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) )) " +
 			"order by codi asc")
 	List<Document> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipus);
 	
@@ -78,17 +82,31 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query(	"from Document d " +
 			"where " +
-			"	d.id not in (:exclude) " +
-			"   and (d.expedientTipus.id = :expedientTipusId or d.expedientTipus.id = :expedientTipusPareId or d.expedientTipus.id is null) " +
+			"	(:herencia = false " +
+			"		or d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Document da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Document ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and (d.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or (:herencia = true " +
+			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"			or d.expedientTipus.id is null) " +
 			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Document> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("exclude") Set<Long> exclude, 
+			@Param("herencia") boolean herencia,
 			Pageable pageable);
 			
 	@Query( "select ds " +

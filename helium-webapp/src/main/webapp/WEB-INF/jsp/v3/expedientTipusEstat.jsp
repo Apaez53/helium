@@ -27,7 +27,7 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusEstatCodiTemplate">
+					<th data-col-name="codi" data-orderable="false" width="20%" data-template="#cellExpedientTipusEstatCodiTemplate">
 					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
 						<script id="cellExpedientTipusEstatCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}

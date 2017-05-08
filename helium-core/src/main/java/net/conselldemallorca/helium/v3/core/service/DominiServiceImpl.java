@@ -85,43 +85,36 @@ public class DominiServiceImpl implements DominiService {
 
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia)
-			for (Domini d : dominiRepository.findSobreescrits(
-					expedientTipus.getId()
-				)) {
-				sobreescritsIds.add(d.getId());
-				sobreescritsCodis.add(d.getCodi());
-			}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 
 		Page<Domini> page = dominiRepository.findByFiltrePaginat(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				incloureGlobals,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				sobreescritsIds,
+				herencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
-
-		// Extreu la llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		if (herencia)
-				for (Domini d : page.getContent()) 
-					if ( !expedientTipusId.equals(d.getExpedientTipus().getId()))
-						heretatsIds.add(d.getId());
 
 		PaginaDto<DominiDto> pagina = paginacioHelper.toPaginaDto(
 				page,
 				DominiDto.class);		
 		
-		// Acaba d'omplir el contingut del DTO
-		if (herencia && pagina!=null)
+		if (herencia) {
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Domini d : page.getContent()) 
+				if ( !expedientTipusId.equals(d.getExpedientTipus().getId()))
+					heretatsIds.add(d.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Domini d : dominiRepository.findSobreescrits(
+					expedientTipus.getId()
+				)) {
+				sobreescritsCodis.add(d.getCodi());
+			}
+			// Completa l'informació del dto
 			for (DominiDto dto : pagina.getContingut()) {
 				// Sobreescriu
 				if (sobreescritsCodis.contains(dto.getCodi()))
@@ -129,7 +122,8 @@ public class DominiServiceImpl implements DominiService {
 				// Heretat
 				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
 					dto.setHeretat(true);								
-			}		
+			}					
+		}
 		return pagina;	
 	}
 	

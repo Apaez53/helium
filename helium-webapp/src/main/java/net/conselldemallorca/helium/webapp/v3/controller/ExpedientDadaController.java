@@ -516,9 +516,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
-				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId());
-//		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
+					expedient.getTipus().getId(),
+					instanciaProces.getDefinicioProces().getId(),
+					true // amb herencia
+				);
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
 				procesInstanceId);

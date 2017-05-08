@@ -221,45 +221,37 @@ public class AccioServiceImpl implements AccioService {
 		ExpedientTipus expedientTipus = expedientTipusId != null? expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId) : null;
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia)
-			for (Accio a : accioRepository.findSobreescrits(expedientTipus.getId())) 
-			{
-				sobreescritsIds.add(a.getId());
-				sobreescritsCodis.add(a.getCodi());
-			}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 
 		Page<Accio> page = accioRepository.findByFiltrePaginat(
 				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				definicioProcesId,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				sobreescritsIds,
+				herencia,
 				paginacioHelper.toSpringDataPageable(
-						paginacioParams));
-		
+						paginacioParams));		
 		PaginaDto<AccioDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				AccioDto.class);		
-		
-		// completa la informació d'herència
+				AccioDto.class);				
 		if (herencia) {
-				Set<Long> heretatsIds = new HashSet<Long>();
-				for (Accio a : page.getContent())
-					if ( !expedientTipusId.equals(a.getExpedientTipus().getId()))
-						heretatsIds.add(a.getId());
-				for (AccioDto dto : pagina.getContingut()) {
-					// Sobreescriu
-					if (sobreescritsCodis.contains(dto.getCodi()))
-						dto.setSobreescriu(true);
-					// Heretat
-					if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
-						dto.setHeretat(true);								
-				}
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Accio a : page.getContent())
+				if ( !expedientTipusId.equals(a.getExpedientTipus().getId()))
+					heretatsIds.add(a.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Accio a : accioRepository.findSobreescrits(expedientTipus.getId())) 
+				sobreescritsCodis.add(a.getCodi());
+			// Completa l'informació del dto
+			for (AccioDto dto : pagina.getContingut()) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
+					dto.setHeretat(true);								
+			}
 		}
 		return pagina;		
 	}

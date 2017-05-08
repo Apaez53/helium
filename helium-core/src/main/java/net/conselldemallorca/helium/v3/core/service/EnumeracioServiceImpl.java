@@ -89,53 +89,45 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia)
-			for (Enumeracio e : enumeracioRepository.findSobreescrits(
-					expedientTipus.getId()
-				)) {
-				sobreescritsIds.add(e.getId());
-				sobreescritsCodis.add(e.getCodi());
-			}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 
 		Page<Enumeracio> page = enumeracioRepository.findByFiltrePaginat(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				incloureGlobals,
 				filtre == null || "".equals(filtre),
 				filtre,
-				sobreescritsIds,
+				herencia,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
+		
+		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
 
-		// Extreu la llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
+		// Llista d'enumeracions de la pàgina per consultar els seus valors
 		Set<Long> enumeracionsIds = new HashSet<Long>(); // per guardar els ids de les enumeracions a mostrar
-		if (herencia)
-				for (Enumeracio e : page.getContent()) 
-				{
-					if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
-						heretatsIds.add(e.getId());
-					enumeracionsIds.add(e.getId());
-				}
+		// Llista d'heretats
+		Set<Long> heretatsIds = new HashSet<Long>();
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		for (Enumeracio e : page.getContent()) {
+			enumeracionsIds.add(e.getId());
+			if (herencia
+					&& !expedientTipusId.equals(e.getExpedientTipus().getId()))
+				heretatsIds.add(e.getId());				
+		}
 		if (enumeracionsIds.isEmpty())
 			enumeracionsIds.add(0L);
-
-		PaginaDto<EnumeracioDto> pagina = paginacioHelper.toPaginaDto(page, EnumeracioDto.class);
-		
-		//Recuperam el nombre de valors per cada enumerat
+		if (herencia) {
+			for (Enumeracio e : enumeracioRepository.findSobreescrits(expedientTipus.getId()))
+				sobreescritsCodis.add(e.getCodi());
+		}
 		if (pagina!=null) {
 			// Consulta els valors per enumeració dins d'un Map<enumeracioId, valors count>
 			Map<Long, Long> enumeracioValorsCountMap = new HashMap<Long, Long>();
 			for(Object[] o : enumeracioValorsRepository.countValors(enumeracionsIds))
 				enumeracioValorsCountMap.put((Long) o[0], (Long) o[1]);
-			// Acaba d'omplir el contingut del DTO
+			// Completa l'informació del dto
 			for (EnumeracioDto dto : pagina.getContingut()) {
-				// Compta els valors
+				// Comptador de valors
 				dto.setNumValors(enumeracioValorsCountMap.get(dto.getId()).intValue());
 				if(herencia) {
 					// Sobreescriu

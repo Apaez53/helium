@@ -598,7 +598,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
 					expedientTipus.getId(), 
 					estatId);
 			if (estat == null) {
@@ -719,7 +719,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
 					expedientTipus.getId(), 
 					estatId);
 			if (estat == null) {
@@ -1318,7 +1318,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId);
 		List<Accio> accions = null;
 		if (expedient.getTipus().isAmbInfoPropia()) {
-			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(expedient.getTipus());
+			boolean herencia = expedient.getTipus().getExpedientTipusPare() != null;
+			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(
+					expedient.getTipus().getId(),
+					herencia);
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 			accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);

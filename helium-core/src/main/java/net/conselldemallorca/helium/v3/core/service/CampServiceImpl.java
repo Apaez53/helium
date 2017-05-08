@@ -340,17 +340,6 @@ public class CampServiceImpl implements CampService {
 		
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus != null && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		// Posa en conjunts hash els ids i codis dels camps sobreescrits
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
-			for (Camp c : campRepository.findSobrescrits(expedientTipusId)) {
-				sobreescritsIds.add(c.getId());
-				sobreescritsCodis.add(c.getCodi());
-			}
-		}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);						
 		
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
@@ -361,7 +350,7 @@ public class CampServiceImpl implements CampService {
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
 						filtre, 
-						sobreescritsIds,
+						herencia,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				CampDto.class);
@@ -378,6 +367,15 @@ public class CampServiceImpl implements CampService {
 				agrupacioId == null,
 				agrupacioId); 
 		
+		// Llistat d'elements sobreescrits
+		Set<String> sobreescritsCodis = new HashSet<String>();
+		if (herencia) {
+			for (Camp c : campRepository.findSobrescrits(expedientTipusId)) {
+				sobreescritsCodis.add(c.getCodi());
+			}
+		}
+
+		// Completa l'informació del dto
 		for (CampDto dto: pagina.getContingut()) {
 			// Validacions
 			for (Object[] reg: countValidacions) {

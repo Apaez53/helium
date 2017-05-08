@@ -310,8 +310,10 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
 		List<CampDto> variables = dissenyService.findCampsOrdenatsPerCodi(
-				definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
-				definicioProcesId);
+					definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
+					definicioProcesId,
+					false // sense herencia
+				);
 		// Tasca els camps de la tasca segons el tipus
 		List<CampTascaDto> camps = definicioProcesService.tascaCampFindCampAmbTascaId(tascaId);
 		// Lleva les variables que ja pertanyin a algun camp

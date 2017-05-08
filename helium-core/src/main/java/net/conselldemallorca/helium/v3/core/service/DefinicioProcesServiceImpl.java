@@ -230,10 +230,10 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 						entornId,
 						expedientTipusId == null,
 						expedientTipusId,
-						herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 						incloureGlobals,
 						filtre == null || "".equals(filtre), 
 						filtre, 
+						herencia,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				DefinicioProcesDto.class);

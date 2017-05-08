@@ -1926,57 +1926,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		// Determina si hi ha herència 
 		boolean herencia = ambHerencia && expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia) {
-			for (Estat e : estatRepository.findSobreescrits(
-					expedientTipus.getId()
-				)) {
-				sobreescritsIds.add(e.getId());
-				sobreescritsCodis.add(e.getCodi());
-			}
-		}		
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 		
-		List<Estat> estats = estatRepository.findAllAmbHerencia(
-				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
-				sobreescritsIds);
-				
-		// Extreu la llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		if(herencia)
-			for (Estat e : estats)
-				if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
-					heretatsIds.add(e.getId());
-
 		// Consulta els estats
+		List<Estat> estats;
+		if (herencia)
+			estats = estatRepository.findAllAmbHerencia(expedientTipusId);
+		else
+			estats = estatRepository.findAll(expedientTipusId);				
 		List<EstatDto> dtos = conversioTipusHelper.convertirList(
 				estats,
 				EstatDto.class);		
-
-		// Completa les propietats dels dto's
-		if(herencia) {
-			List<EstatDto> estatsPare = new ArrayList<EstatDto>();
-			List<EstatDto> estatsFill = new ArrayList<EstatDto>();
-			for (EstatDto dto: dtos) {
-				// Sobreescriu
-				if (sobreescritsCodis.contains(dto.getCodi()))
-					dto.setSobreescriu(true);
-				// Heretat
-				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
-					dto.setHeretat(true);			
-				
-				if (dto.isHeretat())
-					estatsPare.add(dto);
-				else
-					estatsFill.add(dto);
-			}
-			// Reordena els estats primer del pare i després del fill
-			dtos = estatsPare;
-			dtos.addAll(estatsFill);
-		}
 
 		return dtos;		
 	}
@@ -2101,40 +2060,33 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		// Determina si hi ha herència 
 		boolean herencia = expedientTipus.isAmbInfoPropia() && expedientTipus.getExpedientTipusPare() != null;
-		Set<Long> sobreescritsIds = new HashSet<Long>();
-		Set<String> sobreescritsCodis = new HashSet<String>();
-		if (herencia)
-			for (Estat e : estatRepository.findSobreescrits(
-					expedientTipus.getId()
-				)) {
-				sobreescritsIds.add(e.getId());
-				sobreescritsCodis.add(e.getCodi());
-			}
-		if (sobreescritsIds.isEmpty())
-			sobreescritsIds.add(0L);
 		
 		Page<Estat> page = estatRepository.findByFiltrePaginat(
 				expedientTipusId,
-				herencia ? expedientTipus.getExpedientTipusPare().getId() : null,
 				filtre == null || "".equals(filtre), 
 				filtre, 
-				sobreescritsIds,
+				herencia,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams)); 
 
-		// Extreu la llista d'heretats
-		Set<Long> heretatsIds = new HashSet<Long>();
-		if (herencia)
-				for (Estat e : page.getContent())
-					if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
-						heretatsIds.add(e.getId());
-
 		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				EstatDto.class);		
-		
-		// Completa les propietats dels dto's
-		if(herencia)
+				EstatDto.class);				
+
+		if (herencia) {
+			// Llista d'heretats
+			Set<Long> heretatsIds = new HashSet<Long>();
+			for (Estat e : page.getContent())
+				if ( !expedientTipusId.equals(e.getExpedientTipus().getId()))
+					heretatsIds.add(e.getId());
+			// Llistat d'elements sobreescrits
+			Set<String> sobreescritsCodis = new HashSet<String>();
+			for (Estat e : estatRepository.findSobreescrits(
+					expedientTipus.getId()
+				)) {
+				sobreescritsCodis.add(e.getCodi());
+			}
+			// Completa l'informació del dto
 			for (EstatDto dto: pagina.getContingut()) {
 				// Sobreescriu
 				if (sobreescritsCodis.contains(dto.getCodi()))
@@ -2143,7 +2095,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
 					dto.setHeretat(true);			
 			}				
-		
+		}
 		return pagina;		
 	}
 	

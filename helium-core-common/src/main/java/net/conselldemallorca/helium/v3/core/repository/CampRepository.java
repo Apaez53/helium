@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,10 +40,23 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	@Query(	"select c " + 
 			"from Camp c " +
 			"where " + 
-			"	c.id not in (:exclude) " +
+			"	(:herencia = false " +
+			"		or c.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select cs.id " +
+			"			from Camp ca " +
+			"				join ca.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Camp cs " +
+			"			where " +
+			"				cs.codi = ca.codi " +
+			"			 	and cs.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
 			"  	and (	c.expedientTipus.id = :expedientTipusId " +
-			"		or c.expedientTipus.id in (select expedientTipusPare.id from ExpedientTipus where id = :expedientTipusId) " +
-			"		or c.expedientTipus.id is null) " +
+						// Heretats
+			"			or (:herencia = true " +
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"			or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
@@ -55,8 +67,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,		
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
-			@Param("exclude") Set<Long> exclude, 
+			@Param("filtre") String filtre,
+			@Param("herencia") boolean herencia,
 			Pageable pageable);
 	
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */
@@ -74,6 +86,28 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	List<Camp> findByExpedientTipusOrderByCodiAsc(
 			ExpedientTipus expedientTipus);
+	
+	
+	@Query(	"select c from " +
+			"    Camp c " +
+			"where " +
+			"	(c.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select cs.id " +
+			"			from Camp ca " +
+			"				join ca.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Camp cs " +
+			"			where " +
+			"				cs.codi = ca.codi " +
+			"			 	and cs.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"   and (c.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) )) " +
+			"order by c.codi asc ")
+	List<Camp> findByExpedientTipusAmbHerencia(
+			@Param("expedientTipusId") Long expedientTipusId);
 	
 	List<Camp> findByDefinicioProcesAndTipus(
 			DefinicioProces definicioProces,

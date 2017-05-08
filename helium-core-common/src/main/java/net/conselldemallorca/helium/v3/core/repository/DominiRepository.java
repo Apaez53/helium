@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,20 +59,32 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 	@Query(	"from Domini d " +
 			"where " +
 			"   d.entorn.id = :entornId " +
-			"	and d.id not in (:exclude) " +
+			"	and (:herencia = false " +
+			"		or d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Domini da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Domini ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
 			"	and ((d.expedientTipus.id = :expedientTipusId) " + 
-			"			or (d.expedientTipus.id = :expedientTipusPareId) " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId))  " +
 			"			or (d.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	Page<Domini> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("exclude") Set<Long> exclude, 
+			@Param("herencia") boolean herencia, 
 			Pageable pageable);
 
 	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/

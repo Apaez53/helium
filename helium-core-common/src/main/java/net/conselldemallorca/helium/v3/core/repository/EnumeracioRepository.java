@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -69,21 +68,33 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 
 	@Query(	"from Enumeracio e " +
 			"where " +
-			"	e.id not in (:exclude) " +
+			"	(:herencia = false " +
+			"		or e.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select es.id " +
+			"			from Enumeracio ea " +
+			"				join ea.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Enumeracio es " +
+			"			where " +
+			"				es.codi = ea.codi " +
+			"			 	and es.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
 			"   and e.entorn.id = :entornId " +
 			"	and ((e.expedientTipus.id = :expedientTipusId) " +
-			"			or (e.expedientTipus.id = :expedientTipusPareId) " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and e.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"			or (e.expedientTipus is null and (:esNullExpedientTipusId = true or :incloureGlobals = true))) " +
 			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Enumeracio> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("expedientTipusPareId") Long expedientTipusPareId,
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			@Param("exclude") Set<Long> exclude, 
+			@Param("herencia") boolean herencia, 
 			Pageable pageable);
 	
 	/** Troba les enumeracions per a un tipus d'expedient i també les globals de l'entorn i les ordena per nom.*/

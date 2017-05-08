@@ -603,7 +603,8 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	public List<CampDto> findCampsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId) {
+			Long definicioProcesId,
+			boolean herencia) {
 		
 		ExpedientTipus expedientTipus = null;
 		DefinicioProces definicioProces = null;
@@ -619,7 +620,10 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Camp> camps;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			if (herencia)
+				camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+			else
+				camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
 		} else if (definicioProces != null) {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} else 
