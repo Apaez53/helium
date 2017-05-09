@@ -34,9 +34,9 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampAgrupacioDto> agrupacioFindAll(Long expedientTipusId, Long definicioProcesId)
+	public List<CampAgrupacioDto> agrupacioFindAll(Long expedientTipusId, Long definicioProcesId, boolean herencia)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.agrupacioFindAll(expedientTipusId, definicioProcesId);
+		return delegate.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override

@@ -149,6 +149,20 @@
 
 <script type="text/javascript">
 // <![CDATA[            
+
+// Llistat d'identificadors d'agrupacions heretades
+var agrupacionsHeretadesIds =  ${agrupacionsHeretadesIds};
+
+// Funció per donar format als itemps de la select d'agrupacions depenent de la herència
+function formatAgrupacioSelectHerencia(item) {
+	var res;
+    if(item.id && agrupacionsHeretadesIds.indexOf(parseInt(item.id)) >= 0)
+		res = item.text + " <span class='label label-primary'>R</span>";
+	else
+		res = item.text;
+    return res;
+  }
+   
 $(document).ready(function() {
 
 	// Botons de modificar i eliminar agrupacions
@@ -179,9 +193,13 @@ $(document).ready(function() {
 		var agrupacioId = $(this).val();
 		if (agrupacioId >= 0 ) {
 			$('#nou_camp').attr('href', '${baseUrl}/variable/new?agrupacioId=' + agrupacioId);
-			$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
-			$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
-			$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();			
+			if (agrupacionsHeretadesIds.indexOf(parseInt(agrupacioId)) < 0) {
+				$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
+				$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
+				$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();
+			} else {
+				$('#agrupacioUpdate,#agrupacioDelete').closest('li').hide();
+			}
 			// Mostra la columna d'ordre
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 			$('#expedientTipusVariable').DataTable().column(2).visible(true);
@@ -193,7 +211,13 @@ $(document).ready(function() {
 			$('#expedientTipusVariable').DataTable().column(2).visible(false);
 		}
 		refrescaTaula();
-	});	
+	});
+	// Afegeix format si l'item de la agrupació està heretat
+	$('#agrupacions').select2({
+        formatResult: formatAgrupacioSelectHerencia,
+        formatSelection: formatAgrupacioSelectHerencia
+    });
+	
 	// Amaga la columna d'ordre
 	$('#expedientTipusVariable').DataTable().column(2).visible(false);
 	
@@ -206,7 +230,8 @@ $(document).ready(function() {
 					var campId = $(this).attr('id').replace('row_','');
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
-						if ($(this).val() > 0)
+						if ($(this).val() > 0 
+								&& (agrupacionsHeretadesIds.indexOf(parseInt($(this).val())) < 0))
 							$agrupacions.append("<a href='${baseUrl}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
 				}

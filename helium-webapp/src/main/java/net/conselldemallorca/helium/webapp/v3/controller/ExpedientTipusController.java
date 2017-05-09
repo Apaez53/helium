@@ -392,7 +392,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			ExpedientTipusDto dto) {
 		model.addAttribute("estats", dto.getEstats());
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
-		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
 		
 		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();

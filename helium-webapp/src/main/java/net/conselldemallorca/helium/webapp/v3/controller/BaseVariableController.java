@@ -131,21 +131,25 @@ public class BaseVariableController extends BaseDissenyController {
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Long definicioProcesId,
-			Model model) {
-		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId));		
+			Model model,
+			boolean herencia) {
+		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId, herencia));		
 	}
 	
 	/** Obté la llista de parelles codi-valor per les possibles agrupacions. A més també afegeix a l'inici
 	 * les opcions de totes les variables (-2) o sensa grupació (-1).
 	 * @param request
 	 * @param expedientTipusId
+	 * @param herencia
+	 * 				Indica si incloure els resultats de les possibles agrupacions heretades pel tipus d'expedient.
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> obtenirParellesAgrupacions(
 			HttpServletRequest request, 
 			Long expedientTipusId,
-			Long definicioProcesId) {
-		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId);
+			Long definicioProcesId,
+			boolean herencia) {
+		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto(AGRUPACIO_TOTES.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.totes") + " ]"));
 		resposta.add(new ParellaCodiValorDto(AGRUPACIO_SENSE.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.sense") + " ]"));

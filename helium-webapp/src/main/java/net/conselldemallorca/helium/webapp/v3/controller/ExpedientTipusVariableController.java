@@ -306,7 +306,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		return obtenirParellesAgrupacions(request, expedientTipusId, null);
+		return obtenirParellesAgrupacions(request, expedientTipusId, null, true);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
@@ -618,12 +618,22 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("baseUrl", expedientTipus.getId());
+			// agrupacions heretades
+			List<Long> agrupacionsHeretadesIds = new ArrayList<Long>();
+			if (expedientTipus.getExpedientTipusPareId() != null) {
+				List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, null, true);
+				for (CampAgrupacioDto a : agrupacions)
+					if (a.isHeretat())
+						agrupacionsHeretadesIds.add(a.getId());
+			}
+			model.addAttribute("agrupacionsHeretadesIds", agrupacionsHeretadesIds);
 		}
 		this.omplirModelAgrupacions(
 				request, 
 				expedientTipusId, 
 				null,
-				model);
+				model,
+				true);
 	}
 	
 	private void omplirModelVariableForm(
@@ -644,7 +654,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				request, 
 				expedientTipusId,
 				null,
-				model);
+				model,
+				false);
 		
 		// Enumeracions
 		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, true));

@@ -482,15 +482,29 @@ public class CampServiceImpl implements CampService {
 	@Transactional(readOnly = true)
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId,
-			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+			Long definicioProcesId,
+			boolean herencia) throws NoTrobatException, PermisDenegatException {
 		List<CampAgrupacio> agrupacions;
-		if (expedientTipusId != null)
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		else
+		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
+		if (expedientTipusId != null) {
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId, herencia);
+			if (herencia) {
+				for(CampAgrupacio a : agrupacions)
+					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
+						agrupacionsHeretadesIds.add(a.getId());
+			}
+		} else
 			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
-		return conversioTipusHelper.convertirList(
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);
+		
+		if (herencia) {
+			for(CampAgrupacioDto dto : agrupacionsDto)
+				if(agrupacionsHeretadesIds.contains(dto.getId()))
+					dto.setHeretat(true);
+		}
+		return agrupacionsDto;
 	}
 	
 	/**
@@ -573,7 +587,7 @@ public class CampServiceImpl implements CampService {
 		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
 		if (agrupacio != null) {
 			List<CampAgrupacio> agrupacions = agrupacio.getExpedientTipus() != null
-					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId())
+					? campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId(), false)
 					: campAgrupacioRepository.findAmbDefinicioProcesOrdenats(agrupacio.getDefinicioProces().getId());
 			if(posicio != agrupacions.indexOf(agrupacio)) {
 				agrupacions.remove(agrupacio);

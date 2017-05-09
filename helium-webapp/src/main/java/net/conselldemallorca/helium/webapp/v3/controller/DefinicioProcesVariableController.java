@@ -461,7 +461,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				request, 
 				null,
 				definicioProcesId, 
-				model);
+				model,
+				false);
 		
 		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornId,
 				definicioProcesId);
@@ -489,7 +490,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("definicioProces", definicioProces);
 			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
-		this.omplirModelAgrupacions(request, null, definicioProcesId, model);
+		this.omplirModelAgrupacions(request, null, definicioProcesId, model, false);
 	}
 
 	private void omplirModelValidacionsForm(
@@ -526,7 +527,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
-		return obtenirParellesAgrupacions(request, null, definicioProcesId);
+		return obtenirParellesAgrupacions(request, null, definicioProcesId, false);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */

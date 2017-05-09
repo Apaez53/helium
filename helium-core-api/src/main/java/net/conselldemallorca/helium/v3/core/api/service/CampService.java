@@ -155,6 +155,8 @@ public interface CampService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param definicioProcesId
 	 *            Atribut id de la definició de procés.
+	 * @param herencia
+	 * 			  Indica si incloure les possibles agrupacions heretades del tipus d'expedient.
 	 * @return les agrupacions del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -163,7 +165,8 @@ public interface CampService {
 	 */
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId,
-			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+			Long definicioProcesId,
+			boolean herencia) throws NoTrobatException, PermisDenegatException;
 		
 	/**
 	 * Crea una nova agrupació.
