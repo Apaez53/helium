@@ -152,13 +152,17 @@
 
 // Llistat d'identificadors d'agrupacions heretades
 var agrupacionsHeretadesIds =  ${agrupacionsHeretadesIds};
+//Llistat d'identificadors d'agrupacions que sobreescriuen
+var agrupacionsSobreescriuenIds =  ${agrupacionsSobreescriuenIds};
 
 // Funció per donar format als itemps de la select d'agrupacions depenent de la herència
 function formatAgrupacioSelectHerencia(item) {
 	var res;
     if(item.id && agrupacionsHeretadesIds.indexOf(parseInt(item.id)) >= 0)
 		res = item.text + " <span class='label label-primary'>R</span>";
-	else
+	else if(item.id && agrupacionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
+		res = item.text + " <span class='label label-warning'>S</span>";
+	else 
 		res = item.text;
     return res;
   }

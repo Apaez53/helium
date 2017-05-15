@@ -115,8 +115,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	/** Compta el número de validacions per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
-			"    id, " +
-			"    size(validacions) " +
+			"    c.id, " +
+			"    size(c.validacions) " +
 			"from " +
 			"   Camp c " +
 			"where " +
@@ -126,15 +126,17 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
 			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
-			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
 	List<Object[]> countValidacions(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
 			@Param("agrupacioId") Long agrupacioId,
 			@Param("herencia") boolean herencia);
 
+	
 	/** Compta el número de registres per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
 			"    id, " +

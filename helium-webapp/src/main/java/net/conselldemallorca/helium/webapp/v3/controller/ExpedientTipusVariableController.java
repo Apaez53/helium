@@ -620,13 +620,18 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			model.addAttribute("baseUrl", expedientTipus.getId());
 			// agrupacions heretades
 			List<Long> agrupacionsHeretadesIds = new ArrayList<Long>();
+			List<Long> agrupacionsSobreescriuenIds = new ArrayList<Long>();
 			if (expedientTipus.getExpedientTipusPareId() != null) {
 				List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, null, true);
-				for (CampAgrupacioDto a : agrupacions)
+				for (CampAgrupacioDto a : agrupacions) {
 					if (a.isHeretat())
 						agrupacionsHeretadesIds.add(a.getId());
+					if (a.isSobreescriu())
+						agrupacionsSobreescriuenIds.add(a.getId());
+				}
 			}
 			model.addAttribute("agrupacionsHeretadesIds", agrupacionsHeretadesIds);
+			model.addAttribute("agrupacionsSobreescriuenIds", agrupacionsSobreescriuenIds);
 		}
 		this.omplirModelAgrupacions(
 				request, 

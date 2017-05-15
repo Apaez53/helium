@@ -371,18 +371,19 @@ public class CampServiceImpl implements CampService {
 		
 		// Omple els comptador de validacions i de membres
 		List<Object[]> countValidacions = campRepository.countValidacions(
-				expedientTipusId,
+				expedientTipusId, 
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId,
-				true //herencia 
+				herencia
 				); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
 				agrupacioId == null,
 				agrupacioId, 
-				true //herencia
+				herencia
 				); 
 		
 		// Llistat d'elements sobreescrits
@@ -486,12 +487,16 @@ public class CampServiceImpl implements CampService {
 			boolean herencia) throws NoTrobatException, PermisDenegatException {
 		List<CampAgrupacio> agrupacions;
 		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
 		if (expedientTipusId != null) {
 			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId, herencia);
 			if (herencia) {
 				for(CampAgrupacio a : agrupacions)
 					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
 						agrupacionsHeretadesIds.add(a.getId());
+				// Llistat d'elements sobreescrits
+				for (CampAgrupacio a : campAgrupacioRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(a.getCodi());
 			}
 		} else
 			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
@@ -500,9 +505,15 @@ public class CampServiceImpl implements CampService {
 									CampAgrupacioDto.class);
 		
 		if (herencia) {
-			for(CampAgrupacioDto dto : agrupacionsDto)
+			// Completa l'informació del dto
+			for(CampAgrupacioDto dto : agrupacionsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
 				if(agrupacionsHeretadesIds.contains(dto.getId()))
 					dto.setHeretat(true);
+			}
 		}
 		return agrupacionsDto;
 	}
