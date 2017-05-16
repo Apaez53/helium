@@ -31,7 +31,13 @@ public class ProcessInstanceEndCommand extends AbstractGetObjectBaseCommand {
 		for (long id: ids) {
 			ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
 			for (TaskInstance taskInstance: processInstance.getTaskMgmtInstance().getTaskInstances()) {
-				taskInstance.suspend();
+				if (taskInstance.isSuspended())
+					taskInstance.resume();
+				if (taskInstance.isOpen()) {
+					taskInstance.setSignalling(false);
+					taskInstance.cancel();
+				}
+					
 			}
 			processInstance.setEnd(dataFinalitzacio);
 		}

@@ -89,6 +89,7 @@ import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.MarcarFinalitzarCommand;
 import net.conselldemallorca.helium.jbpm3.command.MarcarIniciFinalitzacioSegonPlaCommand;
+import net.conselldemallorca.helium.jbpm3.command.ProcessInstanceEndCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
@@ -1898,7 +1899,7 @@ public class JbpmHelper {
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
-		SuspendProcessInstancesCommand command = new SuspendProcessInstancesCommand(ids);
+		ProcessInstanceEndCommand command = new ProcessInstanceEndCommand(ids, dataFinalitzacio);
 		executeCommandWithAutoSave(
 				command,
 				ids,
