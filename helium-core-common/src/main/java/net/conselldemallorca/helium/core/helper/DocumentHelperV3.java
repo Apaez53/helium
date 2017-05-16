@@ -111,6 +111,7 @@ public class DocumentHelperV3 {
 			ExpedientTipus expedientTipus = expedient.getTipus();
 			Document document;
 			if (expedientTipus.isAmbInfoPropia())
+				// TODO: tenir en compte l'herència
 				document = documentRepository.findByExpedientTipusAndCodi(
 						expedientTipus,
 						documentStore.getCodiDocument());
@@ -272,9 +273,12 @@ public class DocumentHelperV3 {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		List<Document> documents;
-		if (expedientTipus.isAmbInfoPropia())
-			documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
-		else
+		if (expedientTipus.isAmbInfoPropia()) {
+			if (expedientTipus.getExpedientTipusPare() != null)
+				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+			else
+				documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+		} else
 			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 			
 		// Consulta els documents de l'instància de procés

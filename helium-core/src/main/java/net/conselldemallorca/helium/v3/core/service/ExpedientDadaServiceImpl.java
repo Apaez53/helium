@@ -261,6 +261,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		if (expedientTipus.isAmbInfoPropia()) {
+			if (expedientTipus.getExpedientTipusPare() != null)
+				agrupacions.addAll(expedientTipus.getExpedientTipusPare().getAgrupacions());
 			agrupacions.addAll(expedientTipus.getAgrupacions());
 		} else {
 			DefinicioProces definicioProces;

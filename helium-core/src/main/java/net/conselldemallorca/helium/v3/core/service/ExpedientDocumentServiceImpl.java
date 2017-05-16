@@ -592,23 +592,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				tascaId,
 				true,
 				true);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				task.getProcessInstanceId());
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		ExpedientTipus expedientTipus = expedient.getTipus();
-//		Document document;
-//		if (expedientTipus.isAmbInfoPropia())
-//			document = documentRepository.findByExpedientTipusAndCodi(
-//					expedientTipus,
-//					documentCodi);
-//		else
-//			document = documentRepository.findByDefinicioProcesAndCodi(
-//					definicioProces, 
-//					documentCodi);
 		
-		Document document = documentRepository.findOne(documentId);
-		if ((document.getExpedientTipus() == null || document.getExpedientTipus().getId() != expedientTipus.getId()) && 
-			(document.getDefinicioProces() == null || document.getDefinicioProces().getId() != definicioProces.getId()))
+		Document document = null;
+
+		if (expedientTipus.isAmbInfoPropia()) {
+			document = documentRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					documentId);
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					task.getProcessInstanceId());
+			document = documentRepository.findByDefinicioProces(
+					definicioProces.getId(), 
+					documentId);		
+		}
+		if (document == null)
 			throw new NoTrobatException(Document.class);
 		
 		return document.isExtensioPermesa(
