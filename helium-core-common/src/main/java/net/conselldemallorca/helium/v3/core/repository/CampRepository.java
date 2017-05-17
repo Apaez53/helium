@@ -33,6 +33,19 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			ExpedientTipus expedientTipus, 
 			String codi);
 	
+	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	@Query(	"from Camp c " +
+			"where " +
+			"  	c.codi = :codi " +
+			"  	and (c.expedientTipus.id = :expedientTipusId " +
+			"			or c.expedientTipus.id = ( " + 
+			"				select et.expedientTipusPare.id " + 
+			"				from ExpedientTipus et " + 
+			"				where et.id = :expedientTipusId)) ")
+	Camp findByExpedientTipusAndCodiAmbHerencia(
+			ExpedientTipus expedientTipus, 
+			String codi);
+	
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
 	Camp findById(Long registreEsborrarId);

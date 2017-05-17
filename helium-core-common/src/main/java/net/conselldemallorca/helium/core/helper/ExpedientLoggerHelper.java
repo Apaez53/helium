@@ -294,7 +294,7 @@ public class ExpedientLoggerHelper {
 					} else {
 						// Variable
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-							camp = campRepository.findByExpedientTipusAndCodi(
+							camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(
 									expedientTipus, 
 									codi);
 						} else {

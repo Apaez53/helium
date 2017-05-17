@@ -122,7 +122,7 @@ public interface CampService {
 			Long definicioProcesId) throws NoTrobatException;
 	
 	/**
-	 * Retorna un camp d'un tipus d'expedient donat el seu codi.
+	 * Retorna un camp d'un tipus d'expedient donat el seu codi. No té en compte la herència.
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.

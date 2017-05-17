@@ -35,10 +35,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -284,35 +281,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				CampAgrupacioDto.class);
 	}
 
-	/**
-	 * MÈTODES COMUNS PER A OBTENIR DADES TANT DEL TIPUS D'EXPEDIENT COM DE LA DEFINICIÓ DE PROCÉS
-	 * DEPENENT DE SI EL TIPUS D'EXPEDIENT TÉ EL FLAG "AMB INFORMACIÓ PRÒPIA" ACTIVAT O NO
-	 */
-	
-	public List<CampDto> findCampsDisponiblesOrdenatsPerCodi(
-			Long expedientId, 
-			String procesInstanceId) {
-		
-		logger.debug("Consulta les dades disponibles donada la id d'epxedient"
-				+ "i un una id d'instància de procés");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(procesInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
-
-		if (definicioProces == null)
-			throw new NoTrobatException(DefinicioProces.class, instanciaProces.getDefinicioProces().getId());
-		
-		
-		return conversioTipusHelper.convertirList(expedientDadaHelper.findCampsDisponiblesOrdenatsPerCodi(expedient.getTipus(), definicioProces), CampDto.class);
-	}
-	
-	
 	/*********************/
 
 	private void optimitzarValorPerConsultesDominiGuardar(
@@ -324,7 +292,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camp = campRepository.findByExpedientTipusAndCodi(
+			if (expedientTipus.getExpedientTipusPare() != null)
+				camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(
+						expedientTipus, 
+						varName);
+			else
+				camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipus, 
 					varName);
 		} else {

@@ -1712,7 +1712,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus,
+			if (expedientTipus.getExpedientTipusPare() != null)
+				camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(expedientTipus,
+						varCodi);
+			else
+				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus,
 					varCodi);
 		} else {
 			camp = campRepository.findByDefinicioProcesAndCodi(

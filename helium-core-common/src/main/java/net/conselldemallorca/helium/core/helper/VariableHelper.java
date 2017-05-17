@@ -229,11 +229,16 @@ public class VariableHelper {
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia())
-			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					variableCodi);
-		else
+		if (expedientTipus.isAmbInfoPropia()) {
+			if (expedientTipus.getExpedientTipusPare() != null) 
+				camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(
+						expedientTipus,
+						variableCodi);
+			else
+				camp = campRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						variableCodi);
+		} else
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					variableCodi);

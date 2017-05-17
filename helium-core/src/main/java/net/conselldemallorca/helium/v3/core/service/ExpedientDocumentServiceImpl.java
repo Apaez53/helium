@@ -46,7 +46,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -61,8 +60,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 @Service
 public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
-	@Resource
-	private CampRepository campRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
