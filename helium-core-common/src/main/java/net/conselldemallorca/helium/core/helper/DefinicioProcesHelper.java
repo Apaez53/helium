@@ -642,7 +642,7 @@ public class DefinicioProcesHelper {
 		Camp camp = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, codiCamp);
+			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, false);
 		} else {
 			// Camp de la definició de procés
 			camp = campRepository.findByDefinicioProcesAndCodi(definicio, codiCamp);
@@ -674,7 +674,7 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, false);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
@@ -706,7 +706,7 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, false);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);

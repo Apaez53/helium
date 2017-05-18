@@ -26,11 +26,12 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	public List<Estat> findByExpedientTipusOrderByOrdreAsc(
 			ExpedientTipus expedientTipus);
 
-	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	/** Consulta per expedient tipus i l'identificador. Té en compte l'herència. */
 	@Query(	"from Estat e " +
 			"where " +
 			"  	e.id = :id " +
 			"  	and (e.expedientTipus.id = :expedientTipusId " +
+						// Heretats
 			"			or e.expedientTipus.id = ( " + 
 			"				select et.expedientTipusPare.id " + 
 			"				from ExpedientTipus et " + 
@@ -43,6 +44,29 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	public Estat findByExpedientTipusIdAndCodi(
 			Long expedientTipusId,
 			String codi);
+	
+	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	@Query(	"from Estat e " +
+			"where " +
+			"  	e.codi = :codi " +
+			"	and e.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select es.id " +
+			"			from Estat ea " +
+			"				join ea.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Estat es " +
+			"			where " +
+			"				es.codi = ea.codi " +
+			"			 	and es.expedientTipus.id = et.expedientTipusPare.id) " +
+			"  	and (e.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or e.expedientTipus.id = ( " + 
+			"				select et.expedientTipusPare.id " + 
+			"				from ExpedientTipus et " + 
+			"				where et.id = :expedientTipusId)) ")
+	Estat findByExpedientTipusAndCodiAmbHerencia(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("codi") String codi);
 	
 	@Query("select max(e.ordre) "
 			+ "from Estat e "

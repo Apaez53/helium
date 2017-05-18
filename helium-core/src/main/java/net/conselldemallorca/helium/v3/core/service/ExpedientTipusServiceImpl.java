@@ -962,7 +962,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (command.getVariables().contains(campExportat.getCodi())){
 					camp = null;
 					if (expedientTipusExisteix) {
-						camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, campExportat.getCodi());
+						camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), campExportat.getCodi(), false);
 					}
 					if (camp == null || sobreEscriure) {
 						if (camp == null) {
@@ -1066,7 +1066,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (command.getDocuments().contains(documentExportat.getCodi())){
 					document = null;
 					if (expedientTipusExisteix) {
-						document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, documentExportat.getCodi());
+						document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), documentExportat.getCodi(), false);
 					}
 					if (document == null || sobreEscriure) {
 						if (document == null) {
@@ -2218,8 +2218,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Map<String, Camp> registres = new HashMap<String, Camp>();
 			for (Camp camp: definicioProces.getCamps()) {
 				Camp nou = campRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						camp.getCodi());
+						expedientTipus.getId(),
+						camp.getCodi(),
+						false);
 				if (nou == null || sobreescriure) {
 					if (nou == null) {
 						nou = new Camp(
@@ -2341,8 +2342,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Map<String, Document> documents = new HashMap<String, Document>();
 			for (Document document: definicioProces.getDocuments()) {
 				Document nou = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						document.getCodi());
+						expedientTipus.getId(),
+						document.getCodi(),
+						false);
 				if (nou == null || sobreescriure) {
 					if (nou == null) {
 						nou = new Document(
@@ -2770,8 +2772,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				// camp de l'expedient
 				Consulta consulta = consultaRepository.findOne(consultaId);
 				Camp camp = campRepository.findByExpedientTipusAndCodi(
-						consulta.getExpedientTipus(), 
-						consultaCamp.getCampCodi());
+						consulta.getExpedientTipus().getId(), 
+						consultaCamp.getCampCodi(),
+						false);
 				if (camp != null) {
 					consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
 					consultaCamp.setCampEtiqueta(camp.getEtiqueta());

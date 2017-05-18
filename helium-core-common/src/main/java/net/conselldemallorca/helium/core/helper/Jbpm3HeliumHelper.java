@@ -192,10 +192,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 
-	@Resource
-	private EstatHelper estatHelper;
-
-
+	
 	@Override
 	public String getUsuariCodiActual() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -427,10 +424,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"estatCodi=" + estatCodi + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Estat estat = estatHelper.findEstat(
-				expedient.getTipus(),
-				estatCodi,
-				true);
+		Estat estat = estatRepository.findByExpedientTipusAndCodiAmbHerencia(
+				expedient.getTipus().getId(), 
+				estatCodi);
 		if (estat == null)
 			throw new NoTrobatException(Estat.class, estatCodi);
 		expedientHelper.update(
@@ -651,8 +647,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Document document;
 		if (expedientTipus.isAmbInfoPropia())
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces, 
@@ -907,8 +904,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		Domini domini;
 		// Dominis del tipus d'expedient
-		domini = dominiRepository.findByExpedientTipusAndCodi(
-				expedient.getTipus(), 
+		domini = dominiRepository.findByExpedientTipusAndCodiAmbHerencia(
+				expedient.getTipus().getId(), 
 				dominiCodi);
 		if (domini == null)
 			// Dominis globals de l'entorn
@@ -1631,10 +1628,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusCodi);
 		return conversioTipusHelper.convertir(
-				estatHelper.findEstat(
-						expedientTipus, 
-						estatCodi, 
-						true),
+				estatRepository.findByExpedientTipusAndCodiAmbHerencia(
+						expedientTipus.getId(), 
+						estatCodi),
 				EstatDto.class);
 	}
 
@@ -1655,8 +1651,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus.isAmbInfoPropia())
 			return conversioTipusHelper.convertir(
 					documentRepository.findByExpedientTipusAndCodi(
-							expedientTipus, 
-							documentCodi),
+							expedientTipus.getId(), 
+							documentCodi,
+							expedientTipus.getExpedientTipusPare() != null),
 					DocumentDissenyDto.class);
 		else
 			return conversioTipusHelper.convertir(
@@ -1711,18 +1708,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia()) {
-			if (expedientTipus.getExpedientTipusPare() != null)
-				camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(expedientTipus,
-						varCodi);
-			else
-				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus,
-					varCodi);
-		} else {
+		if (expedientTipus.isAmbInfoPropia())
+			camp = campRepository.findByExpedientTipusAndCodi(
+					expedientTipus.getId(),
+					varCodi,
+					expedientTipus.getExpedientTipusPare() != null);
+		else
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					varCodi);
-		}
 		
 		if (camp == null)
 			throw new NoTrobatException(Camp.class, varCodi);
@@ -1754,8 +1748,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					varCodi);
+					expedientTipus.getId(),
+					varCodi,
+					expedientTipus.getExpedientTipusPare() != null);
 		} else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,

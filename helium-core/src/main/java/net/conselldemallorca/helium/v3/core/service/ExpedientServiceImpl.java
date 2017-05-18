@@ -118,7 +118,6 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
@@ -141,8 +140,6 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService {
 
-	@Resource
-	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource

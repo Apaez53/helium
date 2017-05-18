@@ -34,7 +34,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -65,8 +64,6 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource

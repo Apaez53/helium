@@ -28,6 +28,29 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			ExpedientTipus expedientTipus,
 			String codi);
 
+	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
+	@Query(	"from Domini d " +
+			"where " +
+			"  	d.codi = :codi " +
+			"	and d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Domini da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Domini ds " +
+			"			where " +
+			"				ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id) " +
+			"  	and (d.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or d.expedientTipus.id = ( " + 
+			"				select et.expedientTipusPare.id " + 
+			"				from ExpedientTipus et " + 
+			"				where et.id = :expedientTipusId)) ")
+	Domini findByExpedientTipusAndCodiAmbHerencia(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("codi") String codi);
+	
 	Domini findByEntornAndCodi(
 			Entorn entorn,
 			String codi);

@@ -291,16 +291,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia()) {
-			if (expedientTipus.getExpedientTipusPare() != null)
-				camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(
-						expedientTipus, 
-						varName);
-			else
-				camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus, 
-					varName);
-		} else {
+		if (expedientTipus.isAmbInfoPropia())
+			camp = campRepository.findByExpedientTipusAndCodi(
+					expedientTipus.getId(), 
+					varName,
+					expedientTipus.getExpedientTipusPare() != null);
+		else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					varName);			

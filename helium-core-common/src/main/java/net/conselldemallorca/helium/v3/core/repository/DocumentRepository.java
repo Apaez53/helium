@@ -13,7 +13,6 @@ import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -83,7 +82,34 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	Document findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
 	
-	Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
+	@Query (
+			"from Document d " + 
+			"where (:herencia = false " +
+			"		or d.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select ds.id " +
+			"			from Document da " +
+			"				join da.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Document ds " +
+			"			where " +
+			"				da.codi = :codi " +
+			"				and ds.codi = da.codi " +
+			"			 	and ds.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"	and	(d.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or ( :herencia = true and d.expedientTipus.id = ( " +	
+			"					select et.expedientTipusPare.id " + 
+			"					from ExpedientTipus et " + 
+			"					where et.id = :expedientTipusId))) " +
+			"	and d.codi = :codi"
+			)
+	Document findByExpedientTipusAndCodi(
+			@Param("expedientTipusId") Long expedientTipus, 
+			@Param("codi") String codi,
+			@Param("herencia") boolean herencia);
+	
 	
 	@Query(	"select " +
 			"    dt.document, " +
@@ -139,4 +165,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"	ds.codi = d.codi " +
 			" 	and ds.expedientTipus.id = et.expedientTipusPare.id ")
 	public List<Document> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
+
+
 }

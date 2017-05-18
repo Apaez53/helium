@@ -293,8 +293,9 @@ public class CampServiceImpl implements CampService {
 				dto.setHeretat(true);
 			else
 				dto.setSobreescriu(campRepository.findByExpedientTipusAndCodi(
-						tipus.getExpedientTipusPare(), 
-						camp.getCodi()) != null);					
+						tipus.getExpedientTipusPare().getId(), 
+						camp.getCodi(),
+						false) != null);					
 		}
 		return dto;
 	}
@@ -317,8 +318,9 @@ public class CampServiceImpl implements CampService {
 		Camp camp = null;
 		if (expedientTipusId != null)
 			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipusRepository.findOne(expedientTipusId), 
-					codi);
+					expedientTipusId, 
+					codi,
+					false);
 		else if (definicioProcesId != null)
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProcesRepository.findById(definicioProcesId), 

@@ -28,23 +28,36 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	Camp findByDefinicioProcesAndCodi(
 			DefinicioProces definicioProces,
 			String codi);
-	
+
+	@Query (
+			"from Camp c " + 
+			"where " + 
+			"	(:herencia = false " +
+			"		or c.id not in ( " + 
+						// Llistat de sobreescrits
+			"			select cs.id " +
+			"			from Camp ca " +
+			"				join ca.expedientTipus et with et.id = :expedientTipusId, " +
+			"				Camp cs " +
+			"			where " +
+			"				ca.codi = :codi " +
+			"				and cs.codi = ca.codi " +
+			"			 	and cs.expedientTipus.id = et.expedientTipusPare.id " +
+			"		) " +
+			"	) " +
+			"	and	(c.expedientTipus.id = :expedientTipusId " +
+						// Heretats
+			"			or ( :herencia = true and c.expedientTipus.id = ( " +	
+			"					select et.expedientTipusPare.id " + 
+			"					from ExpedientTipus et " + 
+			"					where et.id = :expedientTipusId))) " +
+			"	and c.codi = :codi"
+			)
 	Camp findByExpedientTipusAndCodi(
-			ExpedientTipus expedientTipus, 
-			String codi);
-	
-	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
-	@Query(	"from Camp c " +
-			"where " +
-			"  	c.codi = :codi " +
-			"  	and (c.expedientTipus.id = :expedientTipusId " +
-			"			or c.expedientTipus.id = ( " + 
-			"				select et.expedientTipusPare.id " + 
-			"				from ExpedientTipus et " + 
-			"				where et.id = :expedientTipusId)) ")
-	Camp findByExpedientTipusAndCodiAmbHerencia(
-			ExpedientTipus expedientTipus, 
-			String codi);
+			@Param("expedientTipusId") Long expedientTipus, 
+			@Param("codi") String codi,
+			@Param("herencia") boolean herencia);
+
 	
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 

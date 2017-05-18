@@ -651,7 +651,10 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		List<Document> documents;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-			documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+			if (expedientTipus.getExpedientTipusPare() == null)
+				documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+			else
+				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 		} else if (definicioProces != null) {
 			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		} else 

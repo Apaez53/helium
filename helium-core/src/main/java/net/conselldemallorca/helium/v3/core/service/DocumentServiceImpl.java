@@ -166,8 +166,9 @@ public class DocumentServiceImpl implements DocumentService {
 		Document document = null;
 		if (expedientTipusId != null)
 			document = documentRepository.findByExpedientTipusAndCodi(
-											expedientTipusRepository.findOne(expedientTipusId), 
-											codi);
+											expedientTipusId, 
+											codi,
+											false);
 		else if(definicioProcesId != null)
 			document = documentRepository.findByDefinicioProcesAndCodi(
 											definicioProcesRepository.findOne(definicioProcesId), 
@@ -226,8 +227,9 @@ public class DocumentServiceImpl implements DocumentService {
 				dto.setHeretat(true);
 			else
 				dto.setSobreescriu(documentRepository.findByExpedientTipusAndCodi(
-						tipus.getExpedientTipusPare(), 
-						document.getCodi()) != null);					
+						tipus.getExpedientTipusPare().getId(), 
+						document.getCodi(),
+						false) != null);					
 		}
 		return dto;
 	}

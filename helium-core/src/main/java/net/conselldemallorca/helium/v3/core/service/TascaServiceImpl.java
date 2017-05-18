@@ -587,11 +587,12 @@ public class TascaServiceImpl implements TascaService {
 					task.getProcessInstanceId());
 			ExpedientTipus expedientTipus = expedient.getTipus();
 			Document document;
-			if (expedientTipus.isAmbInfoPropia())
+			if (expedientTipus.isAmbInfoPropia()) {
 				document = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus,
-						documentCodi);
-			else
+						expedientTipus.getId(),
+						documentCodi,
+						expedientTipus.getExpedientTipusPare() != null);
+			} else
 				document = documentRepository.findByDefinicioProcesAndCodi(
 						expedientHelper.findDefinicioProcesByProcessInstanceId(
 								task.getProcessInstanceId()), 

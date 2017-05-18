@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

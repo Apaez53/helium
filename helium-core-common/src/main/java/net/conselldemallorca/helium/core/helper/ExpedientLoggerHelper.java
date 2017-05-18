@@ -281,8 +281,9 @@ public class ExpedientLoggerHelper {
 						Document document = null;
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 							document = documentRepository.findByExpedientTipusAndCodi(
-									expedientTipus, 
-									codi);
+									expedientTipus.getId(), 
+									codi,
+									expedientTipus.getExpedientTipusPare() != null);
 						} else {
 							document = documentRepository.findByDefinicioProcesAndCodi(
 									pDef,
@@ -294,9 +295,10 @@ public class ExpedientLoggerHelper {
 					} else {
 						// Variable
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
-							camp = campRepository.findByExpedientTipusAndCodiAmbHerencia(
-									expedientTipus, 
-									codi);
+							camp = campRepository.findByExpedientTipusAndCodi(
+									expedientTipus.getId(), 
+									codi,
+									true);
 						} else {
 							camp = campRepository.findByDefinicioProcesAndCodi(
 									pDef,

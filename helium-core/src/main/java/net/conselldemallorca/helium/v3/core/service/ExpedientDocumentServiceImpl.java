@@ -46,7 +46,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -60,8 +59,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 @Service
 public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -462,11 +459,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		Document document;
-		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
-		else
+					expedientTipus.getId(),
+					documentCodi,
+					expedientTipus.getExpedientTipusPare() != null);
+		} else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
 							processInstanceId), 
@@ -510,8 +508,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Document document;
 		if (expedientTipus.isAmbInfoPropia())
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					false);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
@@ -542,8 +541,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Document document;
 		if (expedientTipus.isAmbInfoPropia())
 			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus,
-					documentCodi);
+					expedientTipus.getId(),
+					documentCodi,
+					false);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
