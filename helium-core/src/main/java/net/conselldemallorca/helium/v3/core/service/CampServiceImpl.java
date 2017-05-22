@@ -391,7 +391,7 @@ public class CampServiceImpl implements CampService {
 		// Llistat d'elements sobreescrits
 		Set<String> sobreescritsCodis = new HashSet<String>();
 		if (herencia) {
-			for (Camp c : campRepository.findSobrescrits(expedientTipusId)) {
+			for (Camp c : campRepository.findSobreescrits(expedientTipusId)) {
 				sobreescritsCodis.add(c.getCodi());
 			}
 		}

@@ -309,7 +309,7 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
-		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
+	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
+		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
 }

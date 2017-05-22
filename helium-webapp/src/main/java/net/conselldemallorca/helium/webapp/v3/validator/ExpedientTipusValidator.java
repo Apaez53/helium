@@ -10,8 +10,14 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -24,6 +30,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  * 		- Si és heretable no pot heretar
  * 		- Si hereta no pot ser heretable
  * 		- Si es desmarca heretable i té expedients tipus que hereden llavors no deixa desmarcar-ho.
+ * 		- Si es desmarca hereda i té definicions de procés amb tasques amb variables o documents heretats
  * - Si la opció de seqüència manual d'anys està activada:
  * 	- Comprova que no hi hagi valors nuls.
  * 	- Comprova que no hi hagi anys repetits.
@@ -33,6 +40,8 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 	private String codiMissatge;
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
+	@Autowired
+	private DefinicioProcesService definicioProcesService;
 	@Autowired
 	private HttpServletRequest request;
 
@@ -44,6 +53,8 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 	@Override
 	public boolean isValid(ExpedientTipusCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
+		ExpedientTipusDto dto = command.getId() == null? null
+				: expedientTipusService.findAmbId(command.getId());
 		// Comprova si ja hi ha un tipus d'expedient amb el mateix codi
 		if (command.getCodi() != null) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -60,6 +71,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 		}
 		// Si té informació pròpia llavors només pot heretar o ser heretable, però no les dues a la vegada
 		if (command.isAmbInfoPropia()) {
+			// Si és heretable i heretat no ho pot ser a la vegada
 			if (command.isHeretable() && command.getExpedientTipusPareId() != null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable.i.heretat", null))
@@ -79,7 +91,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 			if (command.getExpedientTipusPareId() != null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretat.sense.info.propia", null))
-						.addNode("heretatId")
+						.addNode("expedientTipusPareId")
 						.addConstraintViolation();	
 				valid = false;
 			}
@@ -95,6 +107,50 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 						.addNode("heretable")
 						.addConstraintViolation();	
 				valid = false;
+			}
+		}
+		// Si heredava i té tasques amb documents o variables heretades informa de l'error
+		if (command.getExpedientTipusPareId() == null && dto != null && dto.getExpedientTipusPareId() != null ) {
+			// S'ha desmarcat la herència, comprova que no tingui tasques en definicions de procés amb variables o documents heretats
+			int tasquesAmbProblemes;
+			int variablesHeretades;
+			int documentsHeretats;
+			int firmesHeretades;
+			for (DefinicioProcesDto dp : definicioProcesService.findAll(dto.getEntorn().getId(), dto.getId(), false) ) {
+				// Revisa totes les tasques de la definició de procés
+				tasquesAmbProblemes = 0;
+				variablesHeretades = 0;
+				documentsHeretats = 0;
+				firmesHeretades = 0;
+				for (TascaDto t : definicioProcesService.tascaFindAll(dp.getId())) {
+					// Revisa les variables
+					for (CampTascaDto tc : definicioProcesService.tascaCampFindCampAmbTascaId(t.getId())){
+						if (tc.getCamp().getExpedientTipus() != null 
+								&& !tc.getCamp().getExpedientTipus().getId().equals(dto.getId()))
+							variablesHeretades++;
+					}
+					// Revisa els documents
+					for (DocumentTascaDto td : definicioProcesService.tascaDocumentFindDocumentAmbTascaId(t.getId()))
+						if (td.getDocument().getExpedientTipus() != null 
+							&& !td.getDocument().getExpedientTipus().getId().equals(dto.getId()))
+							documentsHeretats++;
+					// Revisa les firmes
+					for (FirmaTascaDto tf : definicioProcesService.tascaFirmaFindAmbTascaId(t.getId()))
+						if (tf.getDocument().getExpedientTipus() != null 
+							&& !tf.getDocument().getExpedientTipus().getId().equals(dto.getId()))
+							firmesHeretades++;
+					if (variablesHeretades > 0 || documentsHeretats > 0 || firmesHeretades > 0)
+						tasquesAmbProblemes++;
+				}
+				if (tasquesAmbProblemes > 0) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(
+									this.codiMissatge + ".heretada.definicio.tasques", 
+									new Object[] {dp.getJbpmKey(), tasquesAmbProblemes, variablesHeretades, documentsHeretats, firmesHeretades }))
+							.addNode("heretable")
+							.addConstraintViolation();	
+					valid = false;
+				}
 			}
 		}
 		// Si la opció de seqüència manual d'anys està activada:

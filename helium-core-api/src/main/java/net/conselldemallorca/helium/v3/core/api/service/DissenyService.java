@@ -198,7 +198,8 @@ public interface DissenyService {
 	 */
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(
 			Long expedientTipusId,
-			Long definicioProcesId);
+			Long definicioProcesId,
+			boolean herencia);
 
 	/** Retorna la informació de disseny d'una definició de procés donat l'identificador de l'entorn i l'id de
 	 * la definició de procés. */

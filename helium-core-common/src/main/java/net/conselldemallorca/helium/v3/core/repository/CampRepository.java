@@ -193,5 +193,5 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"where " +
 			"	cs.codi = c.codi " +
 			" 	and cs.expedientTipus.id = et.expedientTipusPare.id ")
-	List<Camp> findSobrescrits(@Param("expedientTipusId") Long expedientTipusId);
+	List<Camp> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
 }
