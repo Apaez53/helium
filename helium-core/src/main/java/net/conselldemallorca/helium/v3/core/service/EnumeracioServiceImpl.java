@@ -128,7 +128,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			// Completa l'informació del dto
 			for (EnumeracioDto dto : pagina.getContingut()) {
 				// Comptador de valors
-				dto.setNumValors(enumeracioValorsCountMap.get(dto.getId()).intValue());
+				dto.setNumValors(enumeracioValorsCountMap.containsKey(dto.getId()) ? enumeracioValorsCountMap.get(dto.getId()).intValue() : 0);
 				if(herencia) {
 					// Sobreescriu
 					if (sobreescritsCodis.contains(dto.getCodi()))

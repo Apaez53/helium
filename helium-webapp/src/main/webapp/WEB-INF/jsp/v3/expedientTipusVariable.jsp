@@ -128,8 +128,8 @@
 						</div>
 					</script>
 					</th>
-					<th data-col-name="sobreescriu" data-visible="true"/>
-					<th data-col-name="heretat" data-visible="true"/>
+					<th data-col-name="sobreescriu" data-visible="false"/>
+					<th data-col-name="heretat" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>
