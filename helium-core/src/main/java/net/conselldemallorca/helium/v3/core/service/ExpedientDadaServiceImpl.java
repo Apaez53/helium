@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -37,6 +39,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -52,6 +55,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private CampAgrupacioRepository campAgrupacioRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -257,10 +262,22 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				false);
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		boolean herencia = expedientTipus.getExpedientTipusPare() != null;
+		Set<Long> agrupacionsHeretadesIds = new HashSet<Long>();
+		Set<String> sobreescritsCodis = new HashSet<String>();
+
 		if (expedientTipus.isAmbInfoPropia()) {
-			if (expedientTipus.getExpedientTipusPare() != null)
-				agrupacions.addAll(expedientTipus.getExpedientTipusPare().getAgrupacions());
-			agrupacions.addAll(expedientTipus.getAgrupacions());
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipus.getId(), herencia);
+			if (herencia) {
+				Long expedientTipusId = expedientTipus.getId();
+				for(CampAgrupacio a : agrupacions)
+					if(!expedientTipusId.equals(a.getExpedientTipus().getId()))
+						agrupacionsHeretadesIds.add(a.getId());
+				// Llistat d'elements sobreescrits
+				for (CampAgrupacio a : campAgrupacioRepository.findSobreescrits(expedientTipusId)) 
+					sobreescritsCodis.add(a.getCodi());
+			}	
 		} else {
 			DefinicioProces definicioProces;
 			if (processInstanceId == null) {
@@ -273,12 +290,24 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 						processInstanceId);
 			}
-			agrupacions.addAll(definicioProces.getAgrupacions());
+			agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProces.getId());
 		}
-		
-		return conversioTipusHelper.convertirList(
-				agrupacions,
+		List<CampAgrupacioDto> agrupacionsDto = conversioTipusHelper.convertirList(
+				agrupacions, 
 				CampAgrupacioDto.class);
+
+		if (herencia) {
+			// Completa l'informació del dto
+			for(CampAgrupacioDto dto : agrupacionsDto) {
+				// Sobreescriu
+				if (sobreescritsCodis.contains(dto.getCodi()))
+					dto.setSobreescriu(true);
+				// Heretat
+				if(agrupacionsHeretadesIds.contains(dto.getId()))
+					dto.setHeretat(true);
+			}
+		}		
+		return agrupacionsDto;
 	}
 
 	/*********************/

@@ -871,7 +871,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Long membreId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Obté totes les variables del tipus d'expedient
-		List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
+		List<CampDto> variables = campService.findAllAmbHerencia(expedientTipusId);
 		// Consulta els camps del registre
 		List<CampDto> camps = campService.registreFindMembresAmbRegistreId(registreId);
 		Iterator<CampDto> it = variables.iterator();

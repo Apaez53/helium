@@ -459,7 +459,7 @@ public class CampServiceImpl implements CampService {
 			Long expedientTipusId, 
 			Long definicioProcesId) {
 		logger.debug(
-				"Consultant tots els camps del tipus expedient per al desplegable " +
+				"Consultant tots els camps del tipus expedient " +
 				" de camps del registre (expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ")");
 		
@@ -476,6 +476,30 @@ public class CampServiceImpl implements CampService {
 				CampDto.class);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> findAllAmbHerencia(
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tots els camps del tipus expedient amb herencia " +
+				"(expedientTipusId =" + expedientTipusId + ")");
+		
+		List<Camp> camps = null;
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus != null) {
+			if (expedientTipus.getExpedientTipusPare() != null)
+				camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipusId);
+			else
+				camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+		}
+		else
+			camps = new ArrayList<Camp>();
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
+	
 	// MANTENIMENT D'AGRUPACIONS DE CAMPS
 
 	/**

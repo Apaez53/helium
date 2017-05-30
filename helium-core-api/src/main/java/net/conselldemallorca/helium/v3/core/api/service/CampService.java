@@ -149,6 +149,15 @@ public interface CampService {
 	public List<CampDto> findAllOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId);
 
 	/**
+	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador tenint en compte l'herència.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Els camps del tipus d'expedient.
+	 */
+	public List<CampDto> findAllAmbHerencia(Long expedientTipusId);
+
+	/**
 	 * Retorna les agrupacions per a un tipus d'expedient.
 	 * 
 	 * @param expedientTipusId

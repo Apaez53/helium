@@ -21,7 +21,7 @@
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-rowhref-toggle="modal"
-				data-rowhref-template="#rowhrefTemplateAccions" 
+				data-rowhref-template="#rowhrefTemplateEstats" 
 				data-botons-template="#tableButtonsEstatTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -68,7 +68,7 @@
 				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-callback="callbackModalEstats()" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
 			</div>
 		</script>
-		<script id="rowhrefTemplateAccions" type="text/x-jsrender">${expedientTipus.id}/estat/{{:id}}/update</script>
+		<script id="rowhrefTemplateEstats" type="text/x-jsrender">${expedientTipus.id}/estat/{{:id}}/update</script>
 				
 	</c:when>
 	<c:otherwise>

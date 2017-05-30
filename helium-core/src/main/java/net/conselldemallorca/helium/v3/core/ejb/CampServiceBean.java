@@ -141,6 +141,12 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findAllAmbHerencia(Long expedientTipusId) {
+		return delegate.findAllAmbHerencia(expedientTipusId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean afegirAgrupacio(Long campId, Long agrupacioId) {
 		return delegate.afegirAgrupacio(campId, agrupacioId);
 	}
