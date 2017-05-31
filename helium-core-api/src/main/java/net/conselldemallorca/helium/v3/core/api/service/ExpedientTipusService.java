@@ -446,12 +446,15 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 * @param expedientTipusId
+	 * @param herencia Consultar definicions de procés heretades
+	 * @param incloureGlobals
 	 * 
 	 * @return La llista de codis de les diferents definicions de procés.
 	 */
 	public List<String> definicioProcesFindJbjmKey(
 			Long entornId, 
 			Long expedientTipusId,
+			boolean herencia,
 			boolean incloureGlobals);	
 
 	/**

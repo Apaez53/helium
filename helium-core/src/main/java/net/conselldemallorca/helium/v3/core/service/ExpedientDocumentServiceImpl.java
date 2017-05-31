@@ -543,12 +543,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			document = documentRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(),
 					documentCodi,
-					false);
+					true);
 		else
 			document = documentRepository.findByDefinicioProcesAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
 							task.getProcessInstanceId()), 
 					documentCodi);
+		if(document == null)
+			throw new NoTrobatException(Document.class, documentCodi);
+		
 		Date documentData = new Date();
 		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,

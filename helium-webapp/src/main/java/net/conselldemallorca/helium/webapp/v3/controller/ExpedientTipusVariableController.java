@@ -676,6 +676,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				expedientTipusService.definicioProcesFindJbjmKey(
 						entornId, 
 						expedientTipusId, 
+						true,
 						true));
 	}
 		

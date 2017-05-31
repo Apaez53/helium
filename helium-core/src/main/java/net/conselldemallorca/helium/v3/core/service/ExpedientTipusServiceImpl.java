@@ -1752,15 +1752,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<String> definicioProcesFindJbjmKey(
 			Long entornId,
 			Long expedientTipusId,
+			boolean herencia,
 			boolean incloureGlobals) {
 		logger.debug(
 				"Consultant les jbpmKey de les definicions de processos per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"herencia=" + herencia + ", " +
 				"incloureGlobals=" + incloureGlobals + ")");
 		return definicioProcesRepository.findJbpmKeys(
 				entornId, 
-				expedientTipusId, 
+				expedientTipusId,
+				herencia,
 				incloureGlobals);
 	}	
 

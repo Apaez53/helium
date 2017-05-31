@@ -163,17 +163,28 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
-			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (dp.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+						// Globals
+			"			or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
 			"    	from DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId " +
-			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"			and (dps.expedientTipus.id = :expedientTipusId " + 
+						// Heretats
+			"			or (:herencia = true " +
+			"					and dp.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+						// Globals
+			"				or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey) ")
 	List<String> findJbpmKeys(
 			@Param("entornId") Long entornId,
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("herencia") boolean herencia,
 			@Param("incloureGlobals") boolean incloureGlobals);
 
 	/** Mètode per consultar quantes versions hi ha per definició de procés en un entorn.

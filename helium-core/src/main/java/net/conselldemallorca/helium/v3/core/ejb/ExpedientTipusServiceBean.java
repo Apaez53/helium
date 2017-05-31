@@ -289,8 +289,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> definicioProcesFindJbjmKey(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
-		return delegate.definicioProcesFindJbjmKey(entornId, expedientTipusId, incloureGlobals);
+	public List<String> definicioProcesFindJbjmKey(Long entornId, Long expedientTipusId, boolean herencia, boolean incloureGlobals) {
+		return delegate.definicioProcesFindJbjmKey(entornId, expedientTipusId, herencia, incloureGlobals);
 	}
 
 	@Override
