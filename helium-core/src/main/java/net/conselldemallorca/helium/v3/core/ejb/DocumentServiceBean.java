@@ -45,8 +45,8 @@ public class DocumentServiceBean implements DocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto findAmbCodi(Long expedientTipusId, Long definicioProcesId, String codi) {
-		return delegate.findAmbCodi(expedientTipusId, definicioProcesId, codi);
+	public DocumentDto findAmbCodi(Long expedientTipusId, Long definicioProcesId, String codi, boolean herencia) {
+		return delegate.findAmbCodi(expedientTipusId, definicioProcesId, codi, herencia);
 	}
 
 	@Override

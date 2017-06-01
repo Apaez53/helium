@@ -307,7 +307,8 @@ public class CampServiceImpl implements CampService {
 	public CampDto findAmbCodi(
 			Long expedientTipusId, 
 			Long definicioProcesId,
-			String codi) {
+			String codi,
+			boolean herencia) {
 		CampDto ret = null;
 		logger.debug(
 				"Consultant el camp del tipus d'expedient per codi per validar repetició (" +
@@ -320,7 +321,7 @@ public class CampServiceImpl implements CampService {
 			camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipusId, 
 					codi,
-					false);
+					herencia);
 		else if (definicioProcesId != null)
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProcesRepository.findById(definicioProcesId), 
@@ -383,6 +384,7 @@ public class CampServiceImpl implements CampService {
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				definicioProcesId,
+				totes,
 				agrupacioId == null,
 				agrupacioId, 
 				herencia
@@ -470,30 +472,6 @@ public class CampServiceImpl implements CampService {
 		else if (definicioProcesId != null)
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(
 						definicioProcesRepository.findById(definicioProcesId));
-		
-		return conversioTipusHelper.convertirList(
-				camps, 
-				CampDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampDto> findAllAmbHerencia(
-			Long expedientTipusId) {
-		logger.debug(
-				"Consultant tots els camps del tipus expedient amb herencia " +
-				"(expedientTipusId =" + expedientTipusId + ")");
-		
-		List<Camp> camps = null;
-		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		if (expedientTipus != null) {
-			if (expedientTipus.getExpedientTipusPare() != null)
-				camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipusId);
-			else
-				camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		}
-		else
-			camps = new ArrayList<Camp>();
 		
 		return conversioTipusHelper.convertirList(
 				camps, 

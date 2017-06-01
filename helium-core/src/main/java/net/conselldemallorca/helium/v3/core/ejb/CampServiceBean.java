@@ -129,20 +129,14 @@ public class CampServiceBean implements CampService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto findAmbCodi(Long tipusExpedientId, Long definicioProcesId, String codi) {
-		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi);
+	public CampDto findAmbCodi(Long tipusExpedientId, Long definicioProcesId, String codi, boolean herencia) {
+		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findAllOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
 		return delegate.findAllOrdenatsPerCodi(expedientTipusId, definicioProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> findAllAmbHerencia(Long expedientTipusId) {
-		return delegate.findAllAmbHerencia(expedientTipusId);
 	}
 	
 	@Override

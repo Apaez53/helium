@@ -143,10 +143,13 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
     				command.setExpedientTipusId(definicioProces.getExpedientTipus().getId());
     		}
     		ExpedientTipusDto expedientTipus = null;
-    		if (command.getExpedientTipusId() != null)
+    		boolean herencia = false;
+    		if (command.getExpedientTipusId() != null) {
     			expedientTipus = expedientTipusService.findAmbIdPermisConsultar(
     								entornActual.getId(), 
     								command.getExpedientTipusId());
+    			herencia = expedientTipus != null && expedientTipus.getExpedientTipusPareId() != null;
+    		}
     		// Guarda la importació per no haver de desserialitzar un altre cop el fitxer.
 			command.setExportacio(exportacio);
 			
@@ -338,7 +341,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							campDto = campService.findAmbCodi(
 									expedientTipus.getId(),
 									null,
-									tascaCamp.getCampCodi());
+									tascaCamp.getCampCodi(),
+									herencia);
 							if (campDto == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -354,7 +358,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							if (! command.getVariables().contains(tascaCamp.getCampCodi())) {
 								// comprova que el camp existeixi en la definició de procés destí
 								if (command.getId() != null)
-									campDto = campService.findAmbCodi(null, command.getId(), tascaCamp.getCampCodi());
+									campDto = campService.findAmbCodi(null, command.getId(), tascaCamp.getCampCodi(), false);
 								if (campDto == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
@@ -375,7 +379,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							DocumentDto document =documentService.findAmbCodi(
 									expedientTipus.getId(), 
 									null,
-									documentCamp.getDocumentCodi());
+									documentCamp.getDocumentCodi(),
+									herencia);
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -395,7 +400,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 									document = documentService.findAmbCodi(
 											null,
 											command.getId(), 
-											documentCamp.getDocumentCodi());
+											documentCamp.getDocumentCodi(),
+											false);
 								if (document == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
@@ -416,7 +422,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							DocumentDto document =documentService.findAmbCodi(
 									expedientTipus.getId(), 
 									null,
-									firmaCamp.getDocumentCodi());
+									firmaCamp.getDocumentCodi(),
+									herencia);
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -436,7 +443,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 									document = documentService.findAmbCodi(
 											null,
 											command.getId(), 
-											firmaCamp.getDocumentCodi());
+											firmaCamp.getDocumentCodi(),
+											false);
 								if (document == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(

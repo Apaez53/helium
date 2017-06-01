@@ -45,7 +45,8 @@ public interface DocumentService {
 	public DocumentDto findAmbCodi(
 			Long expedientTipusId,
 			Long definicioProcesId, 
-			String codi);
+			String codi,
+			boolean herencia);
 
 	/**
 	 * Retorna tots els documents d'un tipus d'expedient o definició de procés

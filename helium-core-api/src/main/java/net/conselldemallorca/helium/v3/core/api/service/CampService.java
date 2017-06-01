@@ -122,7 +122,7 @@ public interface CampService {
 			Long definicioProcesId) throws NoTrobatException;
 	
 	/**
-	 * Retorna un camp d'un tipus d'expedient donat el seu codi. No té en compte la herència.
+	 * Retorna un camp d'un tipus d'expedient donat el seu codi.
 	 * 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
@@ -130,12 +130,15 @@ public interface CampService {
 	 *            Atribut id de la definició de procés.
 	 * @param codi
 	 *            El codi per a la consulta.
+	 * @param herencia
+	 *            Determina si tenir en compte els camps heretats
 	 * @return El camp del tipus d'expedient o null si no el troba.
 	 */
 	public CampDto findAmbCodi(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			String codi);
+			String codi,
+			boolean herencia);
 
 	/**
 	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador.
@@ -147,15 +150,6 @@ public interface CampService {
 	 * @return Els camps del tipus d'expedient.
 	 */
 	public List<CampDto> findAllOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId);
-
-	/**
-	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador tenint en compte l'herència.
-	 * 
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @return Els camps del tipus d'expedient.
-	 */
-	public List<CampDto> findAllAmbHerencia(Long expedientTipusId);
 
 	/**
 	 * Retorna les agrupacions per a un tipus d'expedient.

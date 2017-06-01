@@ -156,7 +156,8 @@ public class DocumentServiceImpl implements DocumentService {
 	public DocumentDto findAmbCodi(
 			Long expedientTipusId, 
 			Long definicioProcesId, 
-			String codi) {
+			String codi,
+			boolean herencia) {
 		DocumentDto ret = null; 
 		logger.debug(
 				"Consultant el document del tipus d'expedient per codi (" +
@@ -168,7 +169,7 @@ public class DocumentServiceImpl implements DocumentService {
 			document = documentRepository.findByExpedientTipusAndCodi(
 											expedientTipusId, 
 											codi,
-											false);
+											herencia);
 		else if(definicioProcesId != null)
 			document = documentRepository.findByDefinicioProcesAndCodi(
 											definicioProcesRepository.findOne(definicioProcesId), 

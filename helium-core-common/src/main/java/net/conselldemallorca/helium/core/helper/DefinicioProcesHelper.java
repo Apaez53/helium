@@ -146,8 +146,7 @@ public class DefinicioProcesHelper {
 				entornId, 
 				true);
 		ExpedientTipus expedientTipus = expedientTipusId != null ? 
-						expedientTipusRepository.findOne(expedientTipusId) : null;
-		
+						expedientTipusRepository.findOne(expedientTipusId) : null;		
 		// Importació
 
 		// si el command és null s'importa tot
@@ -642,7 +641,7 @@ public class DefinicioProcesHelper {
 		Camp camp = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, false);
+			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, true);
 		} else {
 			// Camp de la definició de procés
 			camp = campRepository.findByDefinicioProcesAndCodi(definicio, codiCamp);
@@ -674,7 +673,7 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, false);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
@@ -706,7 +705,7 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, false);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);

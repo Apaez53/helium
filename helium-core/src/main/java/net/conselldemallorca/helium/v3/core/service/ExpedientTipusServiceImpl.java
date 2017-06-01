@@ -464,6 +464,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setTeNumero(tipus.getTeNumero());
 		exportacio.setTeTitol(tipus.getTeTitol());
 		exportacio.setTramitacioMassiva(tipus.isTramitacioMassiva());						
+		exportacio.setHeretable(tipus.isHeretable());
+		exportacio.setExpedientTipusPareCodi(tipus.getExpedientTipusPare() != null? 
+				tipus.getExpedientTipusPare().getCodi()
+				: null);
 		Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 		for (Entry<Integer, SequenciaAny> entry : tipus.getSequenciaAny().entrySet()) {
 			SequenciaAny value = entry.getValue();
@@ -775,6 +779,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setAmbRetroaccio(importacio.isAmbRetroaccio());
 			expedientTipus.setReindexacioAsincrona(importacio.isReindexacioAsincrona());
 			expedientTipus.setTramitacioMassiva(importacio.isTramitacioMassiva());
+			expedientTipus.setHeretable(importacio.isHeretable());
+			if (importacio.getExpedientTipusPareCodi() !=  null)
+				expedientTipus.setExpedientTipusPare(expedientTipusRepository.findByEntornAndCodi(entorn, importacio.getExpedientTipusPareCodi()));
 			if (importacio.isReiniciarCadaAny()) {
 				Collection<SequenciaAnyDto> sequencies = importacio.getSequenciaAny().values();
 				for (SequenciaAnyDto sequencia : sequencies) {
