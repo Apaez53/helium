@@ -145,7 +145,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
     		ExpedientTipusDto expedientTipus = null;
     		boolean herencia = false;
     		if (command.getExpedientTipusId() != null) {
-    			expedientTipus = expedientTipusService.findAmbIdPermisConsultar(
+    			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
     								entornActual.getId(), 
     								command.getExpedientTipusId());
     			herencia = expedientTipus != null && expedientTipus.getExpedientTipusPareId() != null;
