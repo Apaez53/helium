@@ -49,7 +49,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_expedient_tipus",
 		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
-public class ExpedientTipus implements Serializable, GenericEntity<Long> {
+public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank
