@@ -1665,7 +1665,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		List<Camp> camps;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipusId);
 		} else {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} 
