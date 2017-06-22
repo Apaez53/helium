@@ -142,35 +142,39 @@ public class DocumentHelperV3 {
 				findDocumentStorePerInstanciaProcesAndDocumentCodi(
 						processInstanceId,
 						documentCodi));
-		if (!documentStore.isAdjunt()) {
-			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					processInstanceId);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			ExpedientTipus expedientTipus = expedient.getTipus();
-			Document document;
-			if (expedientTipus.isAmbInfoPropia())
-				document = documentRepository.findByExpedientTipusAndCodi(
-						expedientTipus.getId(),
-						documentStore.getCodiDocument(),
-						expedientTipus.getExpedientTipusPare() != null);
-			else
-				document = documentRepository.findByDefinicioProcesAndCodi(
-						definicioProces, 
-						documentStore.getCodiDocument());
-			if (document != null) {
-				return crearDtoPerDocumentExpedient(
-								document,
-								documentStore);
+		ExpedientDocumentDto ret = null;
+		if (documentStore != null) {
+			if( !documentStore.isAdjunt()) {
+				DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+						processInstanceId);
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+				ExpedientTipus expedientTipus = expedient.getTipus();
+				Document document;
+				if (expedientTipus.isAmbInfoPropia())
+					document = documentRepository.findByExpedientTipusAndCodi(
+							expedientTipus.getId(),
+							documentStore.getCodiDocument(),
+							expedientTipus.getExpedientTipusPare() != null);
+				else
+					document = documentRepository.findByDefinicioProcesAndCodi(
+							definicioProces, 
+							documentStore.getCodiDocument());
+				if (document != null) {
+					ret = crearDtoPerDocumentExpedient(
+									document,
+									documentStore);
+				} else {
+					throw new NoTrobatException(
+							Document.class,
+							"(codi=" + documentStore.getCodiDocument() + ")");
+				}
 			} else {
-				throw new NoTrobatException(
-						Document.class,
-						"(codi=" + documentStore.getCodiDocument() + ")");
+				ret = crearDtoPerAdjuntExpedient(
+						getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+						documentStore);
 			}
-		} else {
-			return crearDtoPerAdjuntExpedient(
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentStore);
 		}
+		return ret;
 	}
 
 	public ArxiuDto getArxiuPerDocumentStoreId(
