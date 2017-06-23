@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -171,7 +172,29 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						valid = false;
 					}
 				}
+			} else {
+				// Si el tipus d'expedient destí és heretable i es vol sobreescriure amb no heretable o no infor pròpia i té
+				// tipus fills que hereten llavors no s'ha de deixar posar com a no info pròpia o no heretable
+				if (expedientTipus != null 
+						&& expedientTipus.isHeretable()
+						&& command.isDadesBasiques()
+						&& !exportacio.isHeretable()
+						) {
+					// Comprovem que el tipus d'expedient destí no tingui tipus d'expedient que hereten
+					List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(command.getId());
+					if (heretats.size() > 0) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(
+										"expedient.tipus.importar.validacio.no.heretable.amb.heretats", 
+										new Object[] {heretats.size()}))
+								.addNode("file")
+								.addConstraintViolation();	
+						valid = false;
+					}
+
+				}
 			}
+			
 			
 			// Expedient tipus pare del qual hereta
 			boolean herencia = false;
