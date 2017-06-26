@@ -212,7 +212,7 @@ public class ExpedientLoggerHelper {
 										lobj.setValorInicial(null);
 									} else {
 										Long estatId = Long.parseLong(info);
-										lobj.setValorInicial(estatRepository.findById(estatId));
+										lobj.setValorInicial(estatRepository.findOne(estatId));
 									}
 									break;
 								case GEOPOSICIOX:
@@ -281,8 +281,9 @@ public class ExpedientLoggerHelper {
 						Document document = null;
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 							document = documentRepository.findByExpedientTipusAndCodi(
-									expedientTipus, 
-									codi);
+									expedientTipus.getId(), 
+									codi,
+									expedientTipus.getExpedientTipusPare() != null);
 						} else {
 							document = documentRepository.findByDefinicioProcesAndCodi(
 									pDef,
@@ -295,8 +296,9 @@ public class ExpedientLoggerHelper {
 						// Variable
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 							camp = campRepository.findByExpedientTipusAndCodi(
-									expedientTipus, 
-									codi);
+									expedientTipus.getId(), 
+									codi,
+									true);
 						} else {
 							camp = campRepository.findByDefinicioProcesAndCodi(
 									pDef,

@@ -118,7 +118,6 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
@@ -131,7 +130,6 @@ import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 
 /**
@@ -142,8 +140,6 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService {
 
-	@Resource
-	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
@@ -164,8 +160,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private RegistreRepository registreRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
@@ -608,7 +602,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class,estatId);
@@ -727,7 +723,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
+					expedientTipus.getId(), 
+					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new NoTrobatException(Estat.class, estatId);
@@ -772,7 +770,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		return expedientsIds.getLlista();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1325,7 +1323,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId);
 		List<Accio> accions = null;
 		if (expedient.getTipus().isAmbInfoPropia()) {
-			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(expedient.getTipus());
+			boolean herencia = expedient.getTipus().getExpedientTipusPare() != null;
+			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(
+					expedient.getTipus().getId(),
+					herencia);
 		} else {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 			accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
@@ -1672,7 +1673,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		List<Camp> camps;
 		if (expedientTipus.isAmbInfoPropia()) {
-			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipusId);
 		} else {
 			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
 		} 

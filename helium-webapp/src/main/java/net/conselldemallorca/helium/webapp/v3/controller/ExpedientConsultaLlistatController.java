@@ -112,8 +112,9 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		model.addAttribute(
 				"campsInformeParams",
 				expedientService.findConsultaInformeParams(consultaId));
-		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
-				consulta.getExpedientTipus().getId());
+		List<EstatDto> estats = expedientTipusService.estatFindAll(
+				consulta.getExpedientTipus().getId(),
+				true);
 		estats.add(
 				0,
 				new EstatDto(
@@ -166,8 +167,9 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			model.addAttribute(
 					"campsInformeParams",
 					expedientService.findConsultaInformeParams(consultaId));
-			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
-					consulta.getExpedientTipus().getId());
+			List<EstatDto> estats = expedientTipusService.estatFindAll(
+					consulta.getExpedientTipus().getId(),
+					true);
 			estats.add(
 					0,
 					new EstatDto(

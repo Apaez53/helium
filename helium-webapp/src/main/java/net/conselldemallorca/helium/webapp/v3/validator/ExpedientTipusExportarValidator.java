@@ -68,6 +68,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					command.getEntornId(), 
 					command.getId());
+			boolean herencia = expedientTipus.getExpedientTipusPareId() != null;
+			Long expedientTipusPareId = expedientTipus.getExpedientTipusPareId();
 			
 			// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
 			// O no s'han escollit
@@ -261,6 +263,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						// Camps
 						for (CampTascaDto campTasca : tasca.getCamps())
 							if ( campTasca.getCamp().getExpedientTipus() != null // camp del tipus d'expedient
+									&& (herencia && !campTasca.getCamp().getExpedientTipus().getId().equals(expedientTipusPareId)) // camp no heretat
 									&& ! command.getVariables().contains(campTasca.getCamp().getCodi())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -275,6 +278,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						// Documents
 						for (DocumentTascaDto documentTasca : tasca.getDocuments())
 							if (documentTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+									&& (herencia && !documentTasca.getDocument().getExpedientTipus().getId().equals(expedientTipusPareId)) // document no heretat
 									&& ! command.getDocuments().contains(documentTasca.getDocument().getCodi())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
@@ -289,6 +293,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						// Signatures
 						for (FirmaTascaDto firmaTasca : tasca.getFirmes())
 							if ( firmaTasca.getDocument().getExpedientTipus() != null // document del tipus d'expedient
+									&& (herencia && !firmaTasca.getDocument().getExpedientTipus().getId().equals(expedientTipusPareId)) // document no heretat
 									&& ! command.getDocuments().contains(firmaTasca.getDocument().getCodi())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(

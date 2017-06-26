@@ -146,7 +146,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		DocumentDto dto = documentService.findAmbId(id);
+		DocumentDto dto = documentService.findAmbId(null, id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setDefinicioProcesId(definicioProcesId);
