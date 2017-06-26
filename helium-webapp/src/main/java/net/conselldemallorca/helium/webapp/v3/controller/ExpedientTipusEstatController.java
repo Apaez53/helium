@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,7 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,7 +28,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -53,15 +49,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-	
-	@ModelAttribute("listEstats")
-	public List<ParellaCodiValorDto> populateValorEstats() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i = 0; i <= 12; i++) {
-			resposta.add(new ParellaCodiValorDto(Integer.toString(i), i));
-		}
-		return resposta;
-	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/estats")
 	public String estats(
@@ -150,7 +137,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		EstatDto dto = expedientTipusService.estatFindAmbId(id);
+		EstatDto dto = expedientTipusService.estatFindAmbId(expedientTipusId, id);
 		ExpedientTipusEstatCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusEstatCommand.class);
@@ -158,6 +145,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		
 		model.addAttribute("expedientTipusEstatCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusEstatForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.POST)
@@ -170,6 +158,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+    		model.addAttribute("heretat", expedientTipusService.estatFindAmbId(expedientTipusId, id).isHeretat());
         	return "v3/expedientTipusEstatForm";
         } else {
         	expedientTipusService.estatUpdate(
@@ -221,7 +210,50 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long estatId,
 			@PathVariable int posicio,
 			Model model) {
-		return expedientTipusService.estatMoure(estatId, posicio);
+		boolean ret = false;
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(), 
+				expedientTipusId); 
+		
+		boolean herencia = tipus.getExpedientTipusPareId() != null;
+		if (herencia) {
+			EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+			boolean correcte = true;
+			if (estat.isHeretat()) {
+				MissatgesHelper.error(
+				request, 
+				getMessage(
+						request, 
+						"expedient.tipus.estat.controller.moure.heretat.error"));
+				correcte = false;
+			} else {
+				// rectifica la posició restant tots els heretats que té per davant
+				int nHeretats = 0;
+				for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true))
+					if (e.isHeretat())
+						nHeretats ++;
+				if (posicio < nHeretats) {
+					MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.estat.controller.moure.heretat.error"));
+					correcte = false;
+				} else {
+					posicio = posicio - nHeretats;
+				}
+			}
+			if (correcte)
+				ret = expedientTipusService.estatMoure(estatId, posicio);
+			else
+				ret = false;
+		}
+		else {
+			ret = expedientTipusService.estatMoure(estatId, posicio);
+		}
+		return ret;
 	}
 	
 	/** Mètode per obrir un formulari d'importació de dades d'estats. */
@@ -254,8 +286,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			int actualitzacions = 0;
         	try {
     			if (command.isEliminarValorsAntics()) {
-    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId))
-    					expedientTipusService.estatDelete(estat.getId());
+    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false))
+   						expedientTipusService.estatDelete(estat.getId());
     			}
     			BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
     			String linia = br.readLine();

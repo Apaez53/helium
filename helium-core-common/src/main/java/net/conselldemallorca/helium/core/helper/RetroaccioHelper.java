@@ -1039,7 +1039,7 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 										lobj.setValorInicial(null);
 									} else {
 										Long estatId = Long.parseLong(info);
-										lobj.setValorInicial(estatRepository.findById(estatId));
+										lobj.setValorInicial(estatRepository.findOne(estatId));
 									}
 									break;
 								case GEOPOSICIOX:
@@ -1101,8 +1101,9 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
 					if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 						camp = campRepository.findByExpedientTipusAndCodi(
-								expedientTipus, 
-								codi);
+								expedientTipus.getId(), 
+								codi,
+								expedientTipus.getExpedientTipusPare() != null);
 					} else {
 						camp = campRepository.findByDefinicioProcesAndCodi(
 								pDef,

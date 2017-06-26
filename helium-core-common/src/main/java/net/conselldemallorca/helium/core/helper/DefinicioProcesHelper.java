@@ -646,13 +646,13 @@ public class DefinicioProcesHelper {
 		Camp camp = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, codiCamp);
+			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, true);
 		} else {
 			// Camp de la definició de procés
 			camp = campRepository.findByDefinicioProcesAndCodi(definicio, codiCamp);
 			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
 			if (camp == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
-				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus, codiCamp);
+				camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiCamp, expedientTipus.getExpedientTipusPare() != null);
 		}
 		if (camp != null)
 			campTasca.setCamp(camp);
@@ -681,13 +681,13 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
 			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
 			if (document == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
-				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, expedientTipus.getExpedientTipusPare() != null);
 		}
 		if (document != null)
 			documentTasca.setDocument(document);
@@ -716,13 +716,13 @@ public class DefinicioProcesHelper {
 		Document document = null;
 		if (expedientTipus != null && isTipusExpedient) {
 			// Camp del tipus d'expedient
-			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+			document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, true);
 		} else {
 			// Camp de la definició de procés
 			document = documentRepository.findByDefinicioProcesAndCodi(definicio, codiDocument);
 			// Si no el troba a la definició de procés i l'expedient té info pròpia llavors ho prova al tipus d'expedient
 			if (document == null && expedientTipus != null && expedientTipus.isAmbInfoPropia())
-				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus, codiDocument);
+				document = documentRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), codiDocument, expedientTipus.getExpedientTipusPare() != null);
 		}
 		if (document != null)
 			firmaTasca.setDocument(document);

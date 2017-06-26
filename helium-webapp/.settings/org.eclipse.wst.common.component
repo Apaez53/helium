@@ -17,16 +17,13 @@
         <dependent-module archiveName="helium-disseny-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-disseny/helium-disseny">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-core-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-api/helium-core-api">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="helium-core-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core/helium-core">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-ws-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-ws/helium-ws">
+        <dependent-module archiveName="helium-core-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-api/helium-core-api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-selenium-integraciones-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-selenium-integraciones/helium-selenium-integraciones">
+        <dependent-module archiveName="helium-ws-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-ws/helium-ws">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="helium-plugin-api-3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-api/helium-plugin-api">

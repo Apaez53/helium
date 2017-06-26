@@ -1626,8 +1626,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								true, false).size();
 						if (expedientsActiusCount > 0 ) {
 							for ( Document documentPlantilla : documentsPlantilles) {
-								Document document = documentRepository.findAmbDefinicioProcesICodi(
-										definicioAnterior.getId(), 
+								Document document = documentRepository.findByDefinicioProcesAndCodi(
+										definicioAnterior, 
 										documentPlantilla.getCodi());
 								// Comprova si existeix
 								if (document != null && document.isPlantilla()) {

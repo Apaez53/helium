@@ -180,7 +180,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute("definicioProces",definicioProces);
 			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(definicioProces.getJbpmId()));
 			
-			// Documents
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 			model.addAttribute("instanciaProces", instanciaProces);
 			
@@ -197,10 +196,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 			}
 			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
-			List<DocumentDto> documents = dissenyService.documentFindAmbDefinicioProces(
-					definicioProces.getId());
+
+			// Documents			
+			List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+					expedient.getTipus().getId(),
+					definicioProces.getId(),
+					true);
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
+			
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
 			return "v3/massivaInfo";
 		}
