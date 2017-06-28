@@ -852,10 +852,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedient(
+		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 				expedient,
-				false,
-				false);
+				expedient.getProcessInstanceId(),
+				true,
+				true);
+		
 		Set<String> codisPersona = new HashSet<String>();
 		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
 		for (ExpedientTascaDto tasca: tasques) {
