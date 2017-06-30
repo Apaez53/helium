@@ -10,6 +10,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
+import org.jbpm.JbpmException;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.file.def.FileDefinition;
 import org.jbpm.graph.def.Action;
@@ -36,13 +37,17 @@ public class ExecuteActionCommand extends AbstractGetObjectBaseCommand {
 	private boolean isTaskInstance = false;
 	private boolean goBack = false;
 	private List<String> params;
+	/** Id de la definició de procés pare en cas d'herència per recuperar handlers en cas d'herència.*/
+	private String processDefinitionPareId;
 
 	public ExecuteActionCommand(
 			long id,
-			String actionName) {
+			String actionName,
+			String processDefinitionPareId) {
 		super();
 		this.id = id;
 		this.actionName = actionName;
+		this.processDefinitionPareId = processDefinitionPareId;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
@@ -59,38 +64,42 @@ public class ExecuteActionCommand extends AbstractGetObjectBaseCommand {
 			pd = pi.getProcessDefinition();
 			action = pd.getAction(actionName);
 		}
-		if (action == null) {
+		// Herència d'accions i handlers
+		if (action == null && processDefinitionPareId != null) {
 			Session session = jbpmContext.getSession();
 			// Cerca l'action en el processDefinition del pare
 			Query query = session.createQuery(
 					"from org.jbpm.graph.def.Action action " +
 					"where action.processDefinition.id = :processDefinitionId ");
-			query.setParameter("processDefinitionId", 11933523L);
+			query.setParameter("processDefinitionId", Long.valueOf(processDefinitionPareId));
 			if (!query.list().isEmpty()) {
 				action = (Action) query.list().get(0);
-			}
-			// Cerca el process definition pare
-			ProcessDefinition pdp = null;
-			query = session.createQuery(
-					"from org.jbpm.graph.def.ProcessDefinition processDefinition " +
-					"where processDefinition.id = :processDefinitionId ");
-			query.setParameter("processDefinitionId", 11933523L);
-			if (!query.list().isEmpty()) {
-				pdp = (ProcessDefinition) query.list().get(0);
-				// Carrega tots els handlers
-				pdp = retrieveProcessDefinition(pdp);
-				if (pdp != null) {
-					FileDefinition fd = pdp.getFileDefinition();
-					if (fd != null) {
-						// Carrega els handlers en el process definition
-						Set<String> resources = fd.getBytesMap().keySet();
-						for (String resource : resources)
-							if (resource.endsWith(".class"))
-								pd.getFileDefinition().addFile(resource, pdp.getFileDefinition().getBytes(resource));
+				// Cerca el process definition pare
+				ProcessDefinition pdp = null;
+				query = session.createQuery(
+						"from org.jbpm.graph.def.ProcessDefinition processDefinition " +
+						"where processDefinition.id = :processDefinitionId ");
+				query.setParameter("processDefinitionId", Long.valueOf(processDefinitionPareId));
+				if (!query.list().isEmpty()) {
+					pdp = (ProcessDefinition) query.list().get(0);
+					// Carrega tots els handlers
+					pdp = retrieveProcessDefinition(pdp);
+					if (pdp != null) {
+						FileDefinition fd = pdp.getFileDefinition();
+						if (fd != null) {
+							// Carrega els handlers en el process definition
+							Set<String> resources = fd.getBytesMap().keySet();
+							for (String resource : resources)
+								if (resource.endsWith(".class"))
+									// Els afegeix al processDefinition
+									pd.getFileDefinition().addFile(resource, pdp.getFileDefinition().getBytes(resource));
+						}
 					}
 				}
 			}
 		}
+		if (action == null)
+			throw new JbpmException("No es troba l'acció a executar: { id=" + id + ", actionName=" + actionName + ", isTaskInstance=" + isTaskInstance + ", processDefinitionPareId=" + processDefinitionPareId);
 		if (!goBack) {
 			if (isTaskInstance) {
 				ExecutionContext ec = new ExecutionContext(ti.getToken());

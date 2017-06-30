@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
@@ -215,6 +216,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Resource
+	private HerenciaHelper herenciaHelper;
 
 
 
@@ -1399,9 +1402,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 					accio.getJbpmAction());
 			try {
+				// Executa l'acció
 				jbpmHelper.executeActionInstanciaProces(
 						processInstanceId,
-						accio.getJbpmAction());
+						accio.getJbpmAction(),
+						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
 			} catch (Exception ex) {
 				if (ex instanceof ExecucioHandlerException) {
 					logger.error(
